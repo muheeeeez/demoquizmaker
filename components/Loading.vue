@@ -1,15 +1,54 @@
 <template>
-  <div v-if="loading" class="loading-screen">
-    <div class="spinner"></div>
-    <h2>QuizMakerAI</h2>
+  <div v-if="loading" class="intro">
+    <h1 class="logo-header">
+      <span class="logo">Q</span>
+      <span class="logo">u</span>
+      <span class="logo">i</span>
+      <span class="logo">z</span>
+      <span class="logo">M</span>
+      <span class="logo">a</span>
+      <span class="logo">k</span>
+      <span class="logo">e</span>
+      <span class="logo">r</span>
+      <span class="logo">A</span>
+      <span class="logo">I</span>
+    </h1>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+
 const loading = ref(true);
 
 onMounted(() => {
-  setTimeout(() => (loading.value = false), 1000);
+  const intro = document.querySelector(".intro");
+  const logoSpans = document.querySelectorAll(".logo");
+
+  setTimeout(() => {
+    logoSpans.forEach((span, idx) => {
+      setTimeout(() => {
+        span.classList.add("active");
+      }, (idx + 1) * 400);
+    });
+  }, 200);
+
+  setTimeout(() => {
+    logoSpans.forEach((span, idx) => {
+      setTimeout(() => {
+        span.classList.remove("active");
+        span.classList.add("fade");
+      }, (idx + 1) * 50);
+    });
+  }, 5600);
+
+  setTimeout(() => {
+    intro.style.top = "-100vh";
+  }, 7000);
+
+  setTimeout(() => {
+    loading.value = false;
+  }, 8000);
 });
 </script>
 
@@ -20,36 +59,44 @@ onMounted(() => {
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
-.loading-screen {
+
+.intro {
   position: fixed;
-  inset: 0;
-  background-color: #ffffff;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  background: #1a1a1a;
+  transition: 1s;
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column;
-  z-index: 9999;
+  justify-content: center;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #ff784b;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+.logo-header {
+  font-size: 2.5rem;
+  letter-spacing: 3px;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-h2 {
+.logo {
+  position: relative;
+  display: inline-block;
   color: #ff784b;
-  font-family: Inter, sans-serif;
-  font-size: 22px;
+  bottom: -20px;
+  opacity: 0;
+  margin: 0 3px;
+}
+
+.logo.active {
+  bottom: 0;
+  opacity: 1;
+  transition: ease-in-out 0.5s;
+}
+
+.logo.fade {
+  bottom: 50px;
+  opacity: 0;
+  transition: ease-in-out 0.5s;
 }
 </style>
