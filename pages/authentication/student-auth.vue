@@ -4,7 +4,6 @@
       <div class="form-container sign-up-container">
         <form @submit.prevent="handleRegister">
           <h1>Create Account</h1>
-
           <div class="infield">
             <input v-model="firstName" type="text" placeholder="First Name" />
             <label></label>
@@ -56,11 +55,9 @@
           <button :disabled="!isFormValidRegister">Sign Up</button>
         </form>
       </div>
-
       <div class="form-container sign-in-container">
         <form @submit.prevent="handleLogin">
           <h1>Sign in</h1>
-
           <div class="infield">
             <input v-model="emailLogin" type="email" placeholder="Email" />
             <label></label>
@@ -73,12 +70,15 @@
             />
             <label></label>
           </div>
-          <a href="#" class="forgot">Forgot your password?</a>
-
+          <nuxt-link to="/authentication/forgot-password" class="forgot">
+            Forgot Password
+          </nuxt-link>
+          <nuxt-link to="/authentication/request-magic-link" class="forgot">
+            Use Magic Link
+          </nuxt-link>
           <button :disabled="!isFormValidLogin">Sign In</button>
         </form>
       </div>
-
       <div class="overlay-container" id="overlayCon">
         <div class="overlay">
           <div class="overlay-panel overlay-left">
@@ -99,9 +99,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { toast } from "vue3-toastify";
 import { useRouter, useFetch } from "#app";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 
 const containerRef = ref(null);
@@ -116,6 +117,7 @@ const signUp = () => {
 };
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const emailLogin = ref("");
@@ -153,7 +155,6 @@ const handleLogin = async () => {
       router.push("/");
       return;
     }
-
     authStore.setAuth({
       access_token: data.value.access_token,
       refresh_token: data.value.refresh_token,
@@ -226,26 +227,44 @@ const handleRegister = async () => {
     toast.error("An error occurred during registration.");
   }
 };
+
+const resizeHandler = () => {
+  const width = window.innerWidth;
+  if (
+    route.path === "/authentication/student-auth" ||
+    route.path === "/authentication/mobile-student-auth"
+  ) {
+    if (width < 768 && route.path !== "/authentication/mobile-student-auth") {
+      router.push("/authentication/mobile-student-auth");
+    } else if (width >= 768 && route.path !== "/authentication/student-auth") {
+      router.push("/authentication/student-auth");
+    }
+  }
+};
+
+onMounted(() => {
+  window.addEventListener("resize", resizeHandler);
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeHandler);
+});
 </script>
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
-
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
-
 .info {
   height: 100vh;
   background: #f6f5f7;
   display: grid;
   place-content: center;
 }
-
 .container {
   position: relative;
   width: 850px;
@@ -255,7 +274,6 @@ const handleRegister = async () => {
   border-radius: 13px;
   overflow: hidden;
 }
-
 .form-container {
   position: absolute;
   width: 60%;
@@ -263,16 +281,13 @@ const handleRegister = async () => {
   padding: 0 40px;
   transition: all 0.6s ease-in-out;
 }
-
 .sign-up-container {
   opacity: 0;
   z-index: 1;
 }
-
 .sign-in-container {
   z-index: 2;
 }
-
 form {
   height: 100%;
   display: flex;
@@ -281,17 +296,14 @@ form {
   justify-content: center;
   padding: 0 50px;
 }
-
 h1 {
   color: #141e30;
 }
-
 .infield {
   position: relative;
   margin: 8px 0;
   width: 100%;
 }
-
 input {
   width: 100%;
   padding: 12px 15px;
@@ -299,7 +311,6 @@ input {
   border: none;
   outline: none;
 }
-
 label {
   position: absolute;
   left: 50%;
@@ -310,23 +321,19 @@ label {
   background: var(--linear-grad);
   transition: 0.3s;
 }
-
 input:focus ~ label {
   width: 100%;
 }
-
 a {
   color: #333;
   font-size: 14px;
   text-decoration: none;
   margin: 15px 0;
 }
-
 a.forgot {
   padding-bottom: 3px;
   border-bottom: 2px solid #eee;
 }
-
 button {
   border-radius: 20px;
   border: 1px solid #ff784b;
@@ -338,17 +345,14 @@ button {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
 .form-container button {
   margin-top: 17px;
   transition: 80ms ease-in;
 }
-
 .form-container button:hover {
   background: #fff;
   color: #ff784b;
 }
-
 .overlay-container {
   position: absolute;
   top: 0;
@@ -359,7 +363,6 @@ button {
   transition: transform 0.6s ease-in-out;
   z-index: 9;
 }
-
 #overlayBtn {
   cursor: pointer;
   position: absolute;
@@ -371,7 +374,6 @@ button {
   background: transparent;
   border-radius: 20px;
 }
-
 .overlay {
   position: relative;
   background: #ff784b;
@@ -381,7 +383,6 @@ button {
   width: 250%;
   transition: transform 0.6s ease-in-out;
 }
-
 .overlay-panel {
   position: absolute;
   display: flex;
@@ -394,21 +395,17 @@ button {
   width: 340px;
   transition: transform 0.6s ease-in-out;
 }
-
 .overlay-left {
   right: 60%;
   transform: translateX(-12%);
 }
-
 .overlay-right {
   right: 0;
   transform: translateX(0%);
 }
-
 .overlay-panel h1 {
   color: #fff;
 }
-
 p {
   font-size: 14px;
   font-weight: 300;
@@ -416,40 +413,32 @@ p {
   letter-spacing: 0.5px;
   margin: 25px 0 35px;
 }
-
 .overlay-panel button {
   border: 1px solid #fff;
   background-color: transparent;
 }
-
 .right-panel-active .overlay-container {
   transform: translateX(-150%);
 }
-
 .right-panel-active .overlay {
   transform: translateX(50%);
 }
-
 .right-panel-active .overlay-left {
   transform: translateX(25%);
 }
-
 .right-panel-active .overlay-right {
   transform: translateX(35%);
 }
-
 .right-panel-active .sign-in-container {
   transform: translateX(20%);
   opacity: 0;
 }
-
 .right-panel-active .sign-up-container {
   transform: translateX(66.7%);
   opacity: 1;
   z-index: 5;
   animation: show 0.6s;
 }
-
 @keyframes show {
   0%,
   50% {

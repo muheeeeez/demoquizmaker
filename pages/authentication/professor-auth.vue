@@ -76,7 +76,12 @@
             />
             <label></label>
           </div>
-          <a href="#" class="forgot">Forgot your password?</a>
+          <nuxt-link to="/authentication/forgot-password" class="forgot">
+            Forgot Password
+          </nuxt-link>
+          <nuxt-link to="/authentication/request-magic-link" class="forgot">
+            Use Magic Link
+          </nuxt-link>
           <button id="signInBtn">Sign In</button>
         </form>
       </div>
@@ -107,8 +112,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 import { useAuthStore } from "~/stores/auth";
 
@@ -123,7 +128,6 @@ const department = ref("");
 const subject = ref("");
 
 const signUpDisabled = ref(true);
-
 watch(
   [
     firstName,
@@ -154,7 +158,6 @@ watch(
 const loginEmail = ref("");
 const loginPassword = ref("");
 const signInDisabled = ref(true);
-
 watch(
   [loginEmail, loginPassword],
   () => {
@@ -171,6 +174,7 @@ onMounted(() => {
   const signUpOverlayBtn = document.getElementById("signUpOverlayBtn");
   const signInOverlayBtn = document.getElementById("signInOverlayBtn");
   const overlayBtn = document.getElementById("overlayBtn");
+
   if (overlayBtn) {
     overlayBtn.addEventListener("click", () => {
       container.classList.toggle("right-panel-active");
@@ -219,6 +223,32 @@ onMounted(() => {
 });
 
 const router = useRouter();
+const route = useRoute();
+
+const resizeHandler = () => {
+  const width = window.innerWidth;
+
+  if (
+    route.path === "/authentication/professor-auth" ||
+    route.path === "/authentication/mobile-professor-auth"
+  ) {
+    if (width < 768 && route.path !== "/authentication/mobile-professor-auth") {
+      router.push("/authentication/mobile-professor-auth");
+    } else if (
+      width >= 768 &&
+      route.path !== "/authentication/professor-auth"
+    ) {
+      router.push("/authentication/professor-auth");
+    }
+  }
+};
+
+onMounted(() => {
+  window.addEventListener("resize", resizeHandler);
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeHandler);
+});
 
 const register = async () => {
   if (registerPassword.value !== confirmPassword.value) {

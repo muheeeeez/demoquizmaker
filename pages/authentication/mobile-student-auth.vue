@@ -19,7 +19,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import StudentLogin from "~/components/StudentLogin.vue";
 import StudentRegister from "~/components/StudentRegister.vue";
 
@@ -31,6 +32,28 @@ const componentsMap = {
 const currentComponent = computed(
   () => componentsMap[currentComponentName.value]
 );
+const router = useRouter();
+const route = useRoute();
+
+const resizeHandler = () => {
+  const width = window.innerWidth;
+  if (
+    route.path === "/authentication/student-auth" ||
+    route.path === "/authentication/mobile-student-auth"
+  ) {
+    if (width < 768 && route.path !== "/authentication/mobile-student-auth") {
+      router.push("/authentication/mobile-student-auth");
+    } else if (width >= 768 && route.path !== "/authentication/student-auth") {
+      router.push("/authentication/student-auth");
+    }
+  }
+};
+onMounted(() => {
+  window.addEventListener("resize", resizeHandler);
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeHandler);
+});
 </script>
 
 <style scoped>

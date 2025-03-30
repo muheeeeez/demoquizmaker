@@ -47,18 +47,45 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import ProfessorLogin from "~/components/ProfessorLogin.vue";
 import ProfessorRegister from "~/components/ProfessorRegister.vue";
 
 const currentComponentName = ref("ProfessorLogin");
-const componentsMap = {
-  ProfessorLogin,
-  ProfessorRegister,
-};
+const componentsMap = { ProfessorLogin, ProfessorRegister };
 const currentComponent = computed(
   () => componentsMap[currentComponentName.value]
 );
+
+const router = useRouter();
+const route = useRoute();
+
+const resizeHandler = () => {
+  const width = window.innerWidth;
+  if (
+    route.path === "/authentication/professor-auth" ||
+    route.path === "/authentication/mobile-professor-auth"
+  ) {
+    if (
+      width < 768 &&
+      route.path !== "/authentication/mobile-professor-auth"
+    ) {
+      router.push("/authentication/mobile-professor-auth");
+    } else if (
+      width >= 768 &&
+      route.path !== "/authentication/professor-auth"
+    ) {
+      router.push("/authentication/professor-auth");
+    }
+  }
+};
+onMounted(() => {
+  window.addEventListener("resize", resizeHandler);
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeHandler);
+});
 </script>
 
 <style scoped>
@@ -68,7 +95,6 @@ const currentComponent = computed(
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
-
 .auth-container {
   width: 100%;
   margin: 0 auto;
@@ -83,7 +109,6 @@ const currentComponent = computed(
   margin-bottom: 1rem;
   justify-content: center;
 }
-
 .tabs button {
   position: relative;
   display: flex;
@@ -100,7 +125,6 @@ const currentComponent = computed(
   width: 18px;
   height: 18px;
 }
-
 .tabs button.active {
   font-weight: bold;
   border-bottom: 2px solid #000;
