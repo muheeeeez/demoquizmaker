@@ -17,6 +17,10 @@ interface _GlobalComponents {
     'ProfessorRegister': typeof import("../components/ProfessorRegister.vue")['default']
     'StudentLogin': typeof import("../components/StudentLogin.vue")['default']
     'StudentRegister': typeof import("../components/StudentRegister.vue")['default']
+    'ProfessorCourseAIAssistant': typeof import("../components/professor/CourseAIAssistant.vue")['default']
+    'ProfessorCourseOverview': typeof import("../components/professor/CourseOverview.vue")['default']
+    'ProfessorCourseQuizzes': typeof import("../components/professor/CourseQuizzes.vue")['default']
+    'ProfessorCourseStudents': typeof import("../components/professor/CourseStudents.vue")['default']
     'NuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
     'NuxtLayout': typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
     'NuxtErrorBoundary': typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
@@ -45,6 +49,10 @@ interface _GlobalComponents {
     'LazyProfessorRegister': LazyComponent<typeof import("../components/ProfessorRegister.vue")['default']>
     'LazyStudentLogin': LazyComponent<typeof import("../components/StudentLogin.vue")['default']>
     'LazyStudentRegister': LazyComponent<typeof import("../components/StudentRegister.vue")['default']>
+    'LazyProfessorCourseAIAssistant': LazyComponent<typeof import("../components/professor/CourseAIAssistant.vue")['default']>
+    'LazyProfessorCourseOverview': LazyComponent<typeof import("../components/professor/CourseOverview.vue")['default']>
+    'LazyProfessorCourseQuizzes': LazyComponent<typeof import("../components/professor/CourseQuizzes.vue")['default']>
+    'LazyProfessorCourseStudents': LazyComponent<typeof import("../components/professor/CourseStudents.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
     'LazyNuxtLayout': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
     'LazyNuxtErrorBoundary': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']>
@@ -79,6 +87,10 @@ export const ProfessorLogin: typeof import("../components/ProfessorLogin.vue")['
 export const ProfessorRegister: typeof import("../components/ProfessorRegister.vue")['default']
 export const StudentLogin: typeof import("../components/StudentLogin.vue")['default']
 export const StudentRegister: typeof import("../components/StudentRegister.vue")['default']
+export const ProfessorCourseAIAssistant: typeof import("../components/professor/CourseAIAssistant.vue")['default']
+export const ProfessorCourseOverview: typeof import("../components/professor/CourseOverview.vue")['default']
+export const ProfessorCourseQuizzes: typeof import("../components/professor/CourseQuizzes.vue")['default']
+export const ProfessorCourseStudents: typeof import("../components/professor/CourseStudents.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
 export const NuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
@@ -107,6 +119,10 @@ export const LazyProfessorLogin: LazyComponent<typeof import("../components/Prof
 export const LazyProfessorRegister: LazyComponent<typeof import("../components/ProfessorRegister.vue")['default']>
 export const LazyStudentLogin: LazyComponent<typeof import("../components/StudentLogin.vue")['default']>
 export const LazyStudentRegister: LazyComponent<typeof import("../components/StudentRegister.vue")['default']>
+export const LazyProfessorCourseAIAssistant: LazyComponent<typeof import("../components/professor/CourseAIAssistant.vue")['default']>
+export const LazyProfessorCourseOverview: LazyComponent<typeof import("../components/professor/CourseOverview.vue")['default']>
+export const LazyProfessorCourseQuizzes: LazyComponent<typeof import("../components/professor/CourseQuizzes.vue")['default']>
+export const LazyProfessorCourseStudents: LazyComponent<typeof import("../components/professor/CourseStudents.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
 export const LazyNuxtLayout: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
 export const LazyNuxtErrorBoundary: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']>

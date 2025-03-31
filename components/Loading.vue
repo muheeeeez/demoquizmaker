@@ -19,7 +19,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-const loading = ref(true);
+const loading = ref(false);
 
 onMounted(() => {
   const intro = document.querySelector(".intro");

@@ -1,223 +1,217 @@
 <template>
-  <div>
-    <div class="top-container">
+  <div class="dashboard-layout">
+    <!-- Side Panel -->
+    <div class="side-panel">
       <div class="logo-container">
         <h1>QuizMakerAI</h1>
       </div>
-      <div class="navbar">
-        <div class="navbar-container user-info">
-          <img src="/images/user.png" alt="User Icon" />
-          <p>{{ name }}</p>
-        </div>
-        <div class="navbar-container logout-container" @click="logout">
-          <img src="/images/logout.png" alt="Logout Icon" />
-          <p class="logout">{{ isLoggingOut ? "Logging out..." : "Logout" }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <h1>
-        Welcome, {{ name }}
-        <img src="/images/hand.png" alt="Hand Icon" class="hand-icon" />
-      </h1>
-    </div>
-    <div class="button-group top-buttons">
-      <button class="primary-btn" @click="showModal = true">
-        <svg
-          class="icon"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      <nav class="side-nav">
+        <div 
+          class="nav-item" 
+          :class="{ active: activeSection === 'dashboard' }"
+          @click="setActiveSection('dashboard')"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Create a New Course
-      </button>
-      <button class="secondary-btn" @click="fetchCourses">
-        Refresh Courses
-      </button>
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </div>
+        
+        <!-- Courses Section -->
+        <div class="nav-section">
+          <div class="nav-section-header">
+            <span>Courses</span>
+            <button class="add-icon" @click="showAddCourseModal = true">+</button>
+          </div>
+          
+          <!-- Courses List -->
+          <div 
+            v-for="course in courseStore.courses" 
+            :key="course.id" 
+            class="nav-item course-item" 
+            :class="{ active: courseStore.activeCourse && courseStore.activeCourse.id === course.id }"
+            @click="selectCourse(course)"
+          >
+            <div class="course-color" :style="{ backgroundColor: course.color }"></div>
+            <span>{{ course.code }}</span>
+          </div>
+        </div>
+      </nav>
     </div>
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <h2>Create a New Course</h2>
-        <label for="course-title">Title</label>
-        <input
-          id="course-title"
-          type="text"
-          v-model="courseTitle"
-          placeholder="Enter course title"
-        />
-        <label for="course-description">Description</label>
-        <textarea
-          id="course-description"
-          rows="3"
-          v-model="courseDescription"
-          placeholder="Enter course description"
-        ></textarea>
-        <div class="modal-buttons">
-          <button class="btn-secondary" @click="closeModal">Cancel</button>
-          <button class="btn-primary" @click="createCourse">
-            Create Course
-          </button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="top-container">
+        <div class="navbar">
+          <div class="navbar-container user-info">
+            <img src="/images/user.png" alt="User Icon" />
+            <p>Sarah Williams</p>
+          </div>
+          <div class="navbar-container logout-container" @click="logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <p class="logout">{{ isLoggingOut ? "Logging out..." : "Logout" }}</p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card-container">
-      <div class="card" v-for="course in courses" :key="course.id">
-        <h2>{{ course.title }}</h2>
-        <p>Course Code: {{ course.access_code }}</p>
-        <p>Students Enrolled: {{ course.student_count }}</p>
-        <div class="button-set">
-          <button class="btn-primary">
-            <NuxtLink :to="`/professor/${course.id}`">Manage Course</NuxtLink>
-          </button>
-          <button class="btn-secondary" @click="regenerateCode(course.id)">
-            Regenerate Code
-          </button>
+
+      <!-- Dashboard content -->
+      <div class="dashboard-content">
+        <!-- Main Dashboard View -->
+        <div v-if="activeSection === 'dashboard'">
+          <h1>Welcome, Professor!</h1>
+          <p>This is your dashboard. You can manage your courses and quizzes here.</p>
+          
+          <div class="stats-container">
+            <div class="stat-card">
+              <i class="fas fa-graduation-cap stat-icon"></i>
+              <h3>{{ courseStore.courses.length }}</h3>
+              <p>Courses</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-clipboard-check stat-icon"></i>
+              <h3>{{ totalQuizzes }}</h3>
+              <p>Quizzes</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-users stat-icon"></i>
+              <h3>{{ totalStudents }}</h3>
+              <p>Students</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course View -->
+        <div v-else-if="courseStore.activeCourse">
+          <div class="course-header">
+            <div class="course-title">
+              <div class="course-color-large" :style="{ backgroundColor: courseStore.activeCourse.color }"></div>
+              <h1>{{ courseStore.activeCourse.code }}: {{ courseStore.activeCourse.title }}</h1>
+            </div>
+            <button class="primary-button"><i class="fas fa-plus"></i> New Quiz</button>
+          </div>
+          
+          <!-- Course Tabs -->
+          <div class="course-tabs">
+            <div 
+              v-for="tab in courseTabs" 
+              :key="tab.id"
+              class="course-tab"
+              :class="{ active: activeTab === tab.id }"
+              @click="activeTab = tab.id"
+            >
+              <i :class="tab.icon"></i> {{ tab.name }}
+            </div>
+          </div>
+          
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- Overview Tab -->
+            <CourseOverview 
+              v-if="activeTab === 'overview'" 
+              :course="courseStore.activeCourse" 
+              @change-tab="handleTabChange"
+            />
+            
+            <!-- Quizzes Tab -->
+            <CourseQuizzes 
+              v-else-if="activeTab === 'quizzes'" 
+              :course="courseStore.activeCourse" 
+            />
+            
+            <!-- Students Tab -->
+            <CourseStudents
+              v-else-if="activeTab === 'students'"
+              :course="courseStore.activeCourse"
+            />
+            
+            <!-- AI Chatbot Tab -->
+            <CourseAIAssistant 
+              v-else-if="activeTab === 'ai-assistant'" 
+              :course="courseStore.activeCourse" 
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="announcement-card">
-      <h1>Announcements</h1>
-      <p>Upcoming quiz in Calculus 101 on Friday, 3 PM.</p>
-      <p>Check out new resources in Physics 202.</p>
-      <p>Midterm exam schedule has been updated.</p>
-      <p>New study materials are available for History 101.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { toast } from "vue3-toastify";
-import { useAuthStore } from "~/stores/auth";
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCourseStore, useStatsStore, useQuizStore, useStudentStore } from '../../stores'
+import CourseOverview from '../../components/professor/CourseOverview.vue'
+import CourseQuizzes from '../../components/professor/CourseQuizzes.vue'
+import CourseStudents from '../../components/professor/CourseStudents.vue'
+import CourseAIAssistant from '../../components/professor/CourseAIAssistant.vue'
 
-const router = useRouter();
-const $toast = toast;
-const isLoggingOut = ref(false);
-const authStore = useAuthStore();
-const name = computed(() =>
-  authStore.user && authStore.user.name ? authStore.user.name : "Guest"
-);
-const showModal = ref(false);
-const courseTitle = ref("");
-const courseDescription = ref("");
-const courses = ref([]);
-const fetchCourses = async () => {
-  $toast.info("Courses Refreshing...");
-  try {
-    const response = await $fetch(
-      "https://genertia-quizmakerbackend.onrender.com/professor/courses?active_only=false",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    );
-    courses.value = response;
-    $toast.success("Courses refreshed.");
-  } catch (error) {
-    $toast.error("Failed to fetch courses.");
-    console.error("Fetch courses error:", error);
-  }
-};
-const createCourse = async () => {
-  if (!courseTitle.value.trim() || !courseDescription.value.trim()) {
-    $toast.error("Please fill in all course details.");
-    return;
-  }
-  const payload = {
-    title: courseTitle.value,
-    description: courseDescription.value,
-    is_active: true,
-  };
+// Add Font Awesome
+const fontAwesomeScript = document.createElement('link')
+fontAwesomeScript.setAttribute('rel', 'stylesheet')
+fontAwesomeScript.setAttribute('href', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css')
+document.head.appendChild(fontAwesomeScript)
 
-  try {
-    $toast.info("Creating Course...");
-    const newCourse = await $fetch(
-      "https://genertia-quizmakerbackend.onrender.com/professor/courses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-        body: payload,
-      }
-    );
-    $toast.success("Course created successfully.");
-    courses.value.push(newCourse);
-    courseTitle.value = "";
-    courseDescription.value = "";
-    showModal.value = false;
-  } catch (error) {
-    $toast.error("Failed to create course.");
-    console.error("Create course error:", error);
-  }
-};
-const closeModal = () => {
-  showModal.value = false;
-};
-const regenerateCode = async (courseId) => {
-  try {
-    $toast.info("Regenerating access code...");
-    const newCodeData = await $fetch(
-      `https://genertia-quizmakerbackend.onrender.com/professor/courses/${courseId}/regenerate-code`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    );
-    $toast.success("Access code regenerated successfully.");
-    const updatedCourse = courses.value.find(
-      (course) => course.id === courseId
-    );
-    if (updatedCourse) {
-      updatedCourse.access_code =
-        newCodeData.access_code || newCodeData.additionalProp1;
-    }
-  } catch (error) {
-    $toast.error("Failed to regenerate course access code.");
-    console.error("Regenerate code error:", error);
-  }
-};
-const logout = async () => {
-  if (!confirm("Are you sure you want to logout?")) return;
-  isLoggingOut.value = true;
-  try {
-    await $fetch("https://genertia-quizmakerbackend.onrender.com/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
-    $toast.success("You have been logged out successfully.");
-    authStore.logout();
-    router.push("/");
-  } catch (error) {
-    $toast.error("An error occurred during logout.");
-    console.error("Logout error:", error);
-  } finally {
-    isLoggingOut.value = false;
-  }
-};
+const router = useRouter()
+const courseStore = useCourseStore()
+const statsStore = useStatsStore()
+const quizStore = useQuizStore()
+const studentStore = useStudentStore()
+const activeSection = ref('dashboard')
+const isLoggingOut = ref(false)
+const activeTab = ref('overview')
+const showAddCourseModal = ref(false)
+const totalQuizzes = ref(12)
+const totalStudents = ref(156)
 
-onMounted(() => {
-  fetchCourses();
-});
+// Load courses and global stats when component is mounted
+onMounted(async () => {
+  await courseStore.fetchCourses()
+  
+  // In a real app, we would get these from the stats store
+  // const globalStats = await statsStore.fetchGlobalStats()
+  // totalQuizzes.value = globalStats.totalQuizzes
+  // totalStudents.value = globalStats.totalStudents
+})
+
+// Course tabs
+const courseTabs = [
+  { id: 'overview', name: 'Overview', icon: 'fas fa-home' },
+  { id: 'quizzes', name: 'Quizzes', icon: 'fas fa-clipboard-list' },
+  { id: 'students', name: 'Students', icon: 'fas fa-user-graduate' },
+  { id: 'materials', name: 'Materials', icon: 'fas fa-book' },
+  { id: 'analytics', name: 'Analytics', icon: 'fas fa-chart-bar' },
+  { id: 'ai-assistant', name: 'AI Assistant', icon: 'fas fa-robot' }
+]
+
+const setActiveSection = (section) => {
+  activeSection.value = section
+  courseStore.activeCourse = null
+}
+
+const selectCourse = async (course) => {
+  // Use the store to set the active course
+  await courseStore.setActiveCourse(course.id)
+  
+  // Load data from other stores
+  await Promise.all([
+    statsStore.loadActiveStats(),
+    quizStore.loadActiveQuizzes(),
+    studentStore.loadActiveStudents()
+  ])
+  
+  activeSection.value = null
+}
+
+const logout = () => {
+  isLoggingOut.value = true
+  // Add your logout logic here
+  setTimeout(() => {
+    router.push('/login')
+  }, 1000)
+}
+
+// Handler for tab changes from child components
+const handleTabChange = (tab) => {
+  activeTab.value = tab
+}
 </script>
 
 <style scoped>
@@ -233,24 +227,126 @@ a {
   color: #fff;
 }
 
-.top-container {
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Side Panel Styles */
+.side-panel {
+  width: 250px;
+  background-color: #2a2f4e;
+  color: #ffffff;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  height: 100vh;
+  z-index: 10;
+  overflow-y: auto;
+}
+
+.logo-container {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-container h1 {
+  color: #ff784b;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left: 3px solid #ff784b;
+}
+
+/* Course Section in Side Nav */
+.nav-section {
+  margin: 10px 0;
+}
+
+.nav-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 10px 20px;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.add-icon {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.add-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.course-item {
+  padding: 10px 15px 10px 40px;
+  font-size: 14px;
+}
+
+.course-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+}
+
+.top-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 40px;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-.top-container h1 {
-  color: #ff784b;
-  font-size: 26px;
-  font-weight: bold;
-}
+
 .navbar {
   display: flex;
   gap: 30px;
   align-items: center;
 }
+
 .navbar-container {
   display: flex;
   align-items: center;
@@ -258,262 +354,602 @@ a {
   color: #374151;
   cursor: pointer;
 }
+
 .logout:hover {
   color: #ff784b;
 }
-.container {
-  padding: 30px 50px;
-  margin-bottom: 30px;
-}
-.container h1 {
-  font-size: 30.5px;
-  color: #111827;
-}
-.container p {
-  color: #4b5563;
-  font-size: 15.5px;
-  padding: 10px 0px;
-}
-.hand-icon {
-  width: 32px;
-  height: 32px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
 
-.icon {
-  width: 18px;
-  height: 18px;
-}
-
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 45px;
-  padding: 40px;
+.dashboard-content {
+  padding: 30px 40px;
   background-color: #f9fafb;
-  min-height: 300px;
+  min-height: calc(100vh - 64px);
 }
 
-.card {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s, box-shadow 0.2s;
-  width: 400px;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-.card h2 {
+.dashboard-content h1 {
+  font-size: 28px;
   color: #111827;
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-.card p {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
-.button-group {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 60px;
-  margin-bottom: 60px;
-}
-.primary-btn {
-  cursor: pointer;
-  width: 230px;
-  height: 50px;
-  padding: 0px 8px;
-  border: 0;
-  box-sizing: border-box;
-  border-radius: 8px;
-  background-color: #5664f5;
-  color: #ffffff;
+.dashboard-content p {
+  color: #4b5563;
   font-size: 16px;
-  font-weight: 600;
-  outline: none;
+  margin-bottom: 24px;
+}
+
+/* Dashboard Stats */
+.stats-container {
   display: flex;
-  align-items: center;
-  gap: 5px;
-  justify-content: center;
+  gap: 24px;
+  margin-top: 30px;
 }
-.primary-btn:hover {
-  background-color: #ffffff;
-  border: 1.5px solid #5664f5;
-  color: #030303;
-}
-.secondary-btn {
-  cursor: pointer;
-  width: 182px;
-  height: 50px;
-  padding: 0px 8px;
-  border: 1.5px solid #5664f5;
-  box-sizing: border-box;
+
+.stat-card {
+  background-color: white;
   border-radius: 8px;
-  background-color: #ffffff;
-  color: #030303;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 19px;
-  outline: none;
+  padding: 20px;
+  min-width: 150px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   text-align: center;
 }
-.secondary-btn:hover {
-  background-color: #5664f5;
-  color: #ffffff;
+
+.stat-card h3 {
+  font-size: 32px;
+  color: #ff784b;
+  margin-bottom: 8px;
 }
 
-.button-set {
+/* Course Header */
+.course-header {
   display: flex;
-  gap: 12px;
-}
-.btn-primary {
-  background-color: #ff784b;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-.btn-primary:hover {
-  background-color: #d1d5db;
-}
-.btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-.btn-secondary:hover {
-  background-color: #d1d5db;
-}
-
-.announcement-card {
-  padding: 20px 60px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-.announcement-card h1 {
-  font-size: 35px;
-  margin-bottom: 20px;
-}
-.announcement-card p {
-  font-size: 20px;
-  line-height: 45px;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  z-index: 999;
+  margin-bottom: 25px;
 }
-.modal-content {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 16px;
-  width: 400px;
+
+.course-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.course-color-large {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* Course Tabs */
+.course-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 25px;
+}
+
+.course-tab {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.course-tab.active {
+  color: #ff784b;
+}
+
+.course-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ff784b;
+}
+
+.course-tab:hover:not(.active) {
+  color: #111827;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Tab Content */
+.tab-content {
+  margin-bottom: 40px;
+}
+
+.detail-card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 25px;
+}
+
+.detail-card h3 {
+  font-size: 20px;
+  color: #1f2937;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.details-stats {
+  display: flex;
+  gap: 40px;
+  margin: 25px 0;
+}
+
+.detail-stat {
   display: flex;
   flex-direction: column;
+}
+
+.detail-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 5px;
+}
+
+.card-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.card-header-with-action h3 {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Quiz List */
+.quiz-list, .student-list, .materials-list {
+  margin-top: 20px;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-content {
+  flex: 1;
+}
+
+.list-item-content h4, .list-item-content h5 {
+  margin-bottom: 5px;
+  color: #1f2937;
+}
+
+.list-item-content p {
+  margin-bottom: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.list-item-actions {
+  display: flex;
   gap: 10px;
 }
-.modal-content h2 {
-  margin-bottom: 12px;
-  font-size: 22px;
+
+.action-btn {
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
-.modal-content label {
-  font-weight: 600;
+
+.action-btn:hover {
+  background-color: #e5e7eb;
 }
-.modal-content input,
-.modal-content textarea {
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  color: #6b7280;
+}
+
+/* Student List */
+.list-header {
+  display: flex;
+  padding: 10px 15px;
+  background-color: #f9fafb;
+  font-weight: 500;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.list-header span, .list-item span {
+  flex: 1;
+  max-width: 200px;
+}
+
+.search-bar {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+
+.search-btn {
+  background-color: #ff784b;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  padding: 0 15px;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Materials */
+.material-category {
+  margin-bottom: 30px;
+}
+
+.material-category h4 {
+  font-size: 16px;
+  color: #374151;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+/* Analytics */
+.analytics-summary {
+  display: flex;
+  gap: 20px;
+  margin: 25px 0;
+}
+
+.analytic-card {
+  flex: 1;
+  background-color: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.analytic-card h4 {
+  font-size: 24px;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+.chart-container {
+  margin: 25px 0;
+}
+
+.chart-container h4 {
+  margin-bottom: 15px;
+  color: #1f2937;
+}
+
+.mock-chart {
+  height: 200px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+
+.chart-bar {
+  width: 40px;
+  background-color: #4C6EF5;
+  border-radius: 4px 4px 0 0;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.full-width {
   width: 100%;
-  padding: 8px;
+  margin-top: 15px;
+}
+
+/* Chatbot */
+.chat-container {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  display: flex;
+  gap: 10px;
+  max-width: 80%;
+}
+
+.ai-message {
+  align-self: flex-start;
+}
+
+.user-message {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #4b5563;
+  flex-shrink: 0;
+}
+
+.user-message .message-avatar {
+  background-color: #4C6EF5;
+  color: white;
+}
+
+.message-content {
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.user-message .message-content {
+  background-color: #4C6EF5;
+  color: white;
+}
+
+.message-content p {
+  margin-bottom: 5px;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  margin-bottom: 12px;
+  outline: none;
 }
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+
+.send-btn {
+  background-color: #4C6EF5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 20px;
+  cursor: pointer;
 }
+
+/* Buttons */
+.primary-button, .secondary-button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary-button {
+  background-color: #ff784b;
+  color: white;
+  border: none;
+}
+
+.primary-button:hover {
+  background-color: #f96a3a;
+}
+
+.secondary-button {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.secondary-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+  .side-panel {
+    width: 200px;
+  }
+  
+  .main-content {
+    margin-left: 200px;
+  }
+
   .top-container {
+    padding: 15px 20px;
+  }
+  
+  .course-item {
+    padding: 10px 15px 10px 30px;
+  }
+  
+  .course-tabs {
+    overflow-x: auto;
+  }
+  
+  .course-tab {
+    padding: 12px 15px;
+    white-space: nowrap;
+  }
+  
+  .analytics-summary {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
-  }
-  .navbar {
-    margin-top: 10px;
-    gap: 15px;
-  }
-  .button-group {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0 20px;
-    gap: 15px;
-  }
-  .primary-btn,
-  .secondary-btn {
-    width: 100%;
-  }
-  .card-container {
-    padding: 20px;
-    gap: 20px;
-  }
-  .card {
-    width: auto;
-  }
-  .announcement-card {
-    padding: 20px;
-    margin-top: 20px;
   }
 }
+
 @media (max-width: 480px) {
-  .container {
-    padding: 20px;
+  .dashboard-layout {
+    flex-direction: column;
   }
-  .container h1 {
-    font-size: 26px;
+
+  .side-panel {
+    width: 100%;
+    height: auto;
+    position: relative;
+    overflow-y: visible;
+  }
+
+  .side-nav {
+    flex-direction: column;
+    padding: 10px 0;
+  }
+  
+  .nav-section {
+    margin: 5px 0;
+  }
+
+  .logo-container {
+    text-align: center;
   }
 
   .logo-container h1 {
-    font-size: 22px;
+    display: block;
+    font-size: 18px;
   }
-  .primary-btn,
-  .secondary-btn {
-    font-size: 14px;
-    height: auto;
-    padding: 10px;
+
+  .main-content {
+    margin-left: 0;
   }
-  .icon {
-    width: 16px;
-    height: 16px;
+  
+  .stats-container {
+    flex-direction: column;
+    gap: 15px;
   }
-  .announcement-card h1 {
-    font-size: 26px;
+  
+  .course-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
   }
-  .announcement-card p {
-    font-size: 16px;
-    line-height: 28px;
+  
+  .details-stats {
+    flex-direction: column;
+    gap: 20px;
   }
+  
+  .list-header, .list-item {
+    display: none;
+  }
+  
+  .list-item.mobile-view {
+    display: block;
+    padding: 15px 0;
+  }
+  
+  .list-item.mobile-view .list-item-content {
+    margin-bottom: 10px;
+  }
+  
+  .list-item.mobile-view .list-item-actions {
+    justify-content: flex-start;
+  }
+  
+  .search-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .search-bar input {
+    border-radius: 4px;
+  }
+  
+  .search-btn {
+    border-radius: 4px;
+    width: 100%;
+  }
+}
+
+.nav-item i {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  margin-right: 8px;
+}
+
+.course-tab i {
+  margin-right: 8px;
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: #ff784b;
+  margin-bottom: 10px;
 }
 </style>
