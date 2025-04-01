@@ -1,16 +1,16 @@
 <template>
   <div class="overview-tab">
     <!-- Loading indicator -->
-    <div v-if="courseStore.isLoading" class="loading-overlay">
+    <div v-if="loading" class="loading-overlay">
       <div class="spinner"></div>
       <p>Loading course data...</p>
     </div>
     
     <!-- Error message -->
-    <div v-else-if="courseStore.error" class="error-message">
+    <div v-else-if="error" class="error-message">
       <i class="fas fa-exclamation-circle"></i>
-      <p>{{ courseStore.error }}</p>
-      <button @click="courseStore.setActiveCourse(course.id)" class="retry-button">
+      <p>{{ error }}</p>
+      <button @click="fetchCourseData" class="retry-button">
         <i class="fas fa-sync"></i> Retry
       </button>
     </div>
@@ -36,14 +36,14 @@
         <div class="stat-box">
           <i class="fas fa-percentage stat-icon"></i>
           <div class="stat-content">
-            <span class="stat-value">{{ statsStore.activeClassAverage }}%</span>
+            <span class="stat-value">{{ courseStats.activeClassAverage }}%</span>
             <span class="stat-label">Average Score</span>
           </div>
         </div>
         <div class="stat-box">
           <i class="fas fa-check-circle stat-icon"></i>
           <div class="stat-content">
-            <span class="stat-value">{{ statsStore.activeCompletionRate }}%</span>
+            <span class="stat-value">{{ courseStats.activeCompletionRate }}%</span>
             <span class="stat-label">Completion Rate</span>
           </div>
         </div>
@@ -74,24 +74,15 @@
             <h3><i class="fas fa-chart-pie"></i> Class Performance</h3>
             
             <div class="pie-chart-container">
-              <div class="pie-chart">
-                <div class="pie-segment" :style="{
-                  background: `conic-gradient(#4C6EF5 0% ${statsStore.activeClassAverage}%, #e5e7eb ${statsStore.activeClassAverage}% 100%)`
-                }">
-                </div>
-                <div class="pie-center">
-                  <span>{{ statsStore.activeClassAverage }}%</span>
-                  <small>Average</small>
-                </div>
-              </div>
+              <canvas ref="performanceChartRef" width="200" height="200"></canvas>
               <div class="chart-legend">
                 <div class="legend-item">
-                  <div class="legend-color" style="background-color: #4C6EF5"></div>
-                  <span>Pass ({{ statsStore.activePassRate }}%)</span>
+                  <div class="legend-color" style="background-color: #ff784b"></div>
+                  <span>Pass ({{ courseStats.activePassRate }}%)</span>
                 </div>
                 <div class="legend-item">
                   <div class="legend-color" style="background-color: #e5e7eb"></div>
-                  <span>Needs Improvement ({{ 100 - statsStore.activePassRate }}%)</span>
+                  <span>Needs Improvement ({{ 100 - courseStats.activePassRate }}%)</span>
                 </div>
               </div>
             </div>
@@ -108,7 +99,7 @@
             </div>
             
             <div class="knowledge-gaps">
-              <div class="gap-item" v-for="(gap, index) in materialStore.courseKnowledgeGaps" :key="index">
+              <div class="gap-item" v-for="(gap, index) in knowledgeGaps" :key="index">
                 <div class="gap-header">
                   <h4>{{ gap.topic }}</h4>
                   <span class="gap-percentage">{{ gap.percentage }}%</span>
@@ -129,7 +120,7 @@
             </div>
             
             <div class="activity-list">
-              <div class="activity-item" v-for="(activity, index) in courseActivities" :key="index">
+              <div class="activity-item" v-for="(activity, index) in recentActivities" :key="index">
                 <div class="activity-icon" :class="activity.type"></div>
                 <div class="activity-content">
                   <h4>{{ activity.title }}</h4>
@@ -164,8 +155,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useCourseStore, useStatsStore, useMaterialStore, useQuizStore, useStudentStore, useAssistantStore } from '../../stores'
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
+import { useOverviewStore } from '../../stores'
+import Chart from 'chart.js/auto'
 
 const props = defineProps({
   course: {
@@ -183,35 +175,146 @@ const navigateToTab = (tabId) => {
 }
 
 // Use the stores for state management
-const courseStore = useCourseStore()
-const statsStore = useStatsStore()
-const materialStore = useMaterialStore()
-const quizStore = useQuizStore()
-const studentStore = useStudentStore()
-const assistantStore = useAssistantStore()
+const overviewStore = useOverviewStore()
 const quickQuestion = ref('')
+
+// Chart references
+const performanceChartRef = ref(null)
+let performanceChart = null
+
+// Computed properties for accessing store data
+const courseStats = computed(() => overviewStore.getCourseStats(props.course.id))
+const knowledgeGaps = computed(() => overviewStore.getCourseKnowledgeGaps(props.course.id))
+const recentActivities = computed(() => overviewStore.getCourseActivities(props.course.id))
+const loading = computed(() => overviewStore.loading)
+const error = computed(() => overviewStore.error)
 
 // Initialize data when component is mounted
 onMounted(async () => {
-  // If course data isn't already loaded in the store, set it
-  if (!courseStore.activeCourse || courseStore.activeCourse.id !== props.course.id) {
-    await courseStore.setActiveCourse(props.course.id)
-  }
-  
-  // Load all required data for the course
-  await Promise.all([
-    statsStore.loadActiveStats(),
-    materialStore.loadActiveMaterials()
-  ])
+  await fetchCourseData()
+  createPerformanceChart()
 })
+
+// Watch for course changes to reload data
+watch(() => props.course?.id, async (newCourseId, oldCourseId) => {
+  if (newCourseId && newCourseId !== oldCourseId) {
+    await fetchCourseData()
+    createPerformanceChart()
+  }
+}, { immediate: false })
+
+// Watch for courseStats changes to update the chart
+watch(courseStats, () => {
+  if (courseStats.value) {
+    createPerformanceChart()
+  }
+}, { deep: true })
+
+// Clean up chart when component is unmounted
+onBeforeUnmount(() => {
+  if (performanceChart) {
+    performanceChart.destroy()
+  }
+})
+
+// Fetch course data
+async function fetchCourseData() {
+  try {
+    await overviewStore.fetchCourseOverview(props.course.id)
+  } catch (error) {
+    console.error('Error loading course overview data:', error)
+  }
+}
+
+// Create the performance chart using Chart.js
+function createPerformanceChart() {
+  if (!performanceChartRef.value || !courseStats.value) return
+
+  // Destroy previous chart if it exists
+  if (performanceChart) {
+    performanceChart.destroy()
+  }
+
+  const ctx = performanceChartRef.value.getContext('2d')
+  performanceChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Pass', 'Needs Improvement'],
+      datasets: [{
+        data: [courseStats.value.activePassRate, 100 - courseStats.value.activePassRate],
+        backgroundColor: ['#ff784b', '#e5e7eb'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}%`
+            }
+          }
+        }
+      },
+      animation: {
+        animateRotate: true,
+        animateScale: true
+      },
+      cutout: '50%', // Creates a donut chart
+      elements: {
+        center: {
+          text: `${courseStats.value.activeClassAverage}%`,
+          fontColor: '#111827',
+          fontStyle: 'Inter',
+          fontSize: 20
+        }
+      }
+    }
+  })
+
+  // Custom plugin to display text in the center
+  Chart.register({
+    id: 'centerText',
+    afterDraw: function(chart) {
+      if (chart.config.options.elements && chart.config.options.elements.center) {
+        const centerConfig = chart.config.options.elements.center
+        const ctx = chart.ctx
+        const chartArea = chart.chartArea
+        
+        ctx.save()
+        
+        // Draw average percent
+        ctx.font = `bold ${centerConfig.fontSize}px ${centerConfig.fontStyle}`
+        ctx.fillStyle = centerConfig.fontColor
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        const centerX = (chartArea.left + chartArea.right) / 2
+        const centerY = (chartArea.top + chartArea.bottom) / 2
+        ctx.fillText(centerConfig.text, centerX, centerY)
+        
+        // Draw "Average" text
+        ctx.font = `12px ${centerConfig.fontStyle}`
+        ctx.fillStyle = '#6B7280'
+        ctx.fillText('Average', centerX, centerY + 20)
+        
+        ctx.restore()
+      }
+    }
+  })
+}
 
 // Handler for assistant questions
 const askQuickQuestion = async () => {
   if (!quickQuestion.value.trim()) return
   
   try {
-    // Call the store action to ask the assistant
-    const response = await assistantStore.askQuestion(props.course.id, quickQuestion.value)
+    // Use the overview store to ask a quick question
+    const response = await overviewStore.askQuickQuestion(props.course.id, quickQuestion.value)
     console.log('Assistant response:', response)
     
     // Reset the input
@@ -225,10 +328,10 @@ const askQuickQuestion = async () => {
 const generateMaterials = async () => {
   try {
     // Get topics from knowledge gaps
-    const topics = materialStore.courseKnowledgeGaps.map(gap => gap.topic)
+    const topics = knowledgeGaps.value.map(gap => gap.topic)
     
     // Call the store action to generate materials
-    const result = await materialStore.generateMaterials(props.course.id, topics)
+    const result = await overviewStore.generateMaterials(props.course.id, topics)
     console.log('Generated materials:', result)
     
     // In a real implementation, you would update the UI to show new materials
@@ -239,88 +342,20 @@ const generateMaterials = async () => {
 
 // Handler for creating a new quiz - now navigates to quizzes tab
 const createNewQuiz = async () => {
-  try {
-    // Navigate to quizzes tab
-    navigateToTab('quizzes')
-    
-    // In a real implementation, you would open a modal to get quiz details
-    // For demo purposes, just use placeholder data
-    const quizData = {
-      title: `New Quiz for ${props.course.code}`,
-      questions: [],
-      timeLimit: 30,
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 1 week from now
-    }
-    
-    // Call the store action to create a quiz
-    const result = await quizStore.createQuiz(props.course.id, quizData)
-    console.log('Created quiz:', result)
-  } catch (error) {
-    console.error('Error creating quiz:', error)
-  }
+  // Navigate to quizzes tab
+  navigateToTab('quizzes')
 }
 
 // Handler for adding students - now navigates to students tab
 const addStudent = async () => {
-  try {
-    // Navigate to students tab
-    navigateToTab('students')
-    
-    // In a real implementation, you would open a modal to get student details
-    // For demo purposes, just use placeholder data
-    const studentData = {
-      name: 'New Student',
-      email: `student${Date.now()}@example.com`
-    }
-    
-    // Call the store action to add a student
-    const result = await studentStore.addStudent(props.course.id, studentData)
-    console.log('Added student:', result)
-  } catch (error) {
-    console.error('Error adding student:', error)
-  }
+  // Navigate to students tab
+  navigateToTab('students')
 }
 
 // Handler for uploading materials - navigates to materials tab
 const uploadMaterial = () => {
   navigateToTab('materials')
 }
-
-// Demo data for activities - in a real app, this would come from a store
-const courseActivities = computed(() => {
-  const courseId = props.course.id
-  
-  // Different activities based on course ID
-  const baseActivities = [
-    {
-      type: 'quiz',
-      title: `New Quiz Published for ${props.course.code}`,
-      description: `Quiz ${courseId + 2}: ${props.course.title} Concepts was published`,
-      time: '2 hours ago'
-    },
-    {
-      type: 'submission',
-      title: 'Quiz Submissions',
-      description: `${5 + courseId * 3} students submitted Quiz ${courseId + 1}`,
-      time: '1 day ago'
-    },
-    {
-      type: 'feedback',
-      title: 'Feedback Provided',
-      description: `You provided feedback on ${props.course.code} Quiz ${courseId} results`,
-      time: '3 days ago'
-    },
-    {
-      type: 'material',
-      title: 'New Material Added',
-      description: `Added "Chapter ${courseId + 3}: Key Concepts" to course materials`,
-      time: '5 days ago'
-    }
-  ]
-  
-  // Return different number of activities for different courses
-  return baseActivities.slice(0, Math.min(4, courseId + 2))
-})
 </script>
 
 <style scoped>
@@ -488,8 +523,9 @@ const courseActivities = computed(() => {
   margin-right: 6px;
 }
 
-.action-button:hover {
+.action-button:hover, .action-button:focus {
   background-color: #e5e7eb;
+  outline: none;
 }
 
 /* Card Header With Action */
@@ -516,8 +552,8 @@ const courseActivities = computed(() => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 200px;
-  margin: 150px 0;
+  height: 250px;
+  margin: 20px 0;
 }
 
 .pie-chart {
@@ -773,8 +809,9 @@ const courseActivities = computed(() => {
   align-items: center;
 }
 
-.secondary-button:hover {
+.secondary-button:hover, .secondary-button:focus {
   background-color: #f3f4f6;
+  outline: none;
 }
 
 /* Responsive */

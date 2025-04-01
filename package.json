@@ -12,6 +12,7 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
     "@pinia/nuxt": "^0.10.1",
+    "chart.js": "^3.9.1",
     "jwt-decode": "^4.0.0",
     "nuxt": "^3.16.0",
     "pinia": "^3.0.1",

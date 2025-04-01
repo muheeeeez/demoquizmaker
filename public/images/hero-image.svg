@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a6cf7;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#6a30e0;stop-opacity:0.9" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4a6cf7;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#6a30e0;stop-opacity:0.2" />
+    </linearGradient>
+    <clipPath id="clip">
+      <rect width="800" height="600" rx="20" />
+    </clipPath>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f9f9ff" />
+  
+  <!-- Abstract Background Elements -->
+  <circle cx="650" cy="150" r="300" fill="url(#grad2)" />
+  <circle cx="100" cy="450" r="200" fill="url(#grad2)" />
+  
+  <!-- Main Visual - Virtual Teacher -->
+  <g transform="translate(400, 300)">
+    <!-- Virtual Teaching Platform -->
+    <rect x="-150" y="-120" width="300" height="220" rx="20" fill="#ffffff" stroke="#4a6cf7" stroke-width="3" />
+    
+    <!-- Screen Content -->
+    <rect x="-130" y="-100" width="260" height="160" rx="10" fill="#f5f5f7" />
+    
+    <!-- Quiz Elements -->
+    <rect x="-110" y="-80" width="220" height="30" rx="5" fill="#e0e6ff" />
+    <circle cx="-90" cy="-65" r="5" fill="#4a6cf7" />
+    <rect x="-80" y="-70" width="170" height="10" rx="5" fill="#6a30e0" opacity="0.7" />
+    
+    <rect x="-110" y="-40" width="220" height="30" rx="5" fill="#ffffff" stroke="#e0e6ff" stroke-width="2" />
+    <circle cx="-90" cy="-25" r="5" fill="#dddddd" />
+    <rect x="-80" y="-30" width="150" height="10" rx="5" fill="#dddddd" />
+    
+    <rect x="-110" y="0" width="220" height="30" rx="5" fill="#ffffff" stroke="#e0e6ff" stroke-width="2" />
+    <circle cx="-90" cy="15" r="5" fill="#dddddd" />
+    <rect x="-80" y="10" width="170" height="10" rx="5" fill="#dddddd" />
+    
+    <!-- AI Elements -->
+    <g transform="translate(0, 60)">
+      <rect x="-80" y="-10" width="160" height="30" rx="15" fill="url(#grad1)" />
+      <text x="0" y="7" font-family="Arial" font-size="12" fill="white" text-anchor="middle">AI-Generated Quiz</text>
+    </g>
+  </g>
+  
+  <!-- Connected Students/Users (simplified) -->
+  <g transform="translate(150, 180)">
+    <circle cx="0" cy="0" r="30" fill="#ffffff" stroke="#4a6cf7" stroke-width="2" />
+    <circle cx="0" cy="-10" r="10" fill="#4a6cf7" />
+    <rect x="-15" y="5" width="30" height="15" rx="5" fill="#4a6cf7" />
+  </g>
+  
+  <g transform="translate(650, 400)">
+    <circle cx="0" cy="0" r="30" fill="#ffffff" stroke="#6a30e0" stroke-width="2" />
+    <circle cx="0" cy="-10" r="10" fill="#6a30e0" />
+    <rect x="-15" y="5" width="30" height="15" rx="5" fill="#6a30e0" />
+  </g>
+  
+  <!-- Connection Lines -->
+  <line x1="180" y1="180" x2="250" y2="280" stroke="#4a6cf7" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="620" y1="400" x2="550" y2="300" stroke="#6a30e0" stroke-width="2" stroke-dasharray="5,5" />
+  
+  <!-- Data Visualizations -->
+  <g transform="translate(150, 450)">
+    <rect x="-50" y="-40" width="100" height="80" rx="10" fill="#ffffff" stroke="#4a6cf7" stroke-width="2" />
+    
+    <!-- Simple Bar Chart -->
+    <rect x="-30" y="0" width="10" height="-20" fill="#4a6cf7" />
+    <rect x="-10" y="0" width="10" height="-30" fill="#6a30e0" />
+    <rect x="10" y="0" width="10" height="-15" fill="#4a6cf7" />
+    <rect x="30" y="0" width="10" height="-25" fill="#6a30e0" />
+  </g>
+  
+  <g transform="translate(650, 200)">
+    <rect x="-50" y="-40" width="100" height="80" rx="10" fill="#ffffff" stroke="#6a30e0" stroke-width="2" />
+    
+    <!-- Simple Pie Chart -->
+    <circle cx="0" cy="0" r="25" fill="#ffffff" stroke="#dddddd" stroke-width="1" />
+    <path d="M 0 0 L 25 0 A 25 25 0 0 1 0 25 Z" fill="#4a6cf7" />
+    <path d="M 0 0 L 0 25 A 25 25 0 0 1 -25 0 Z" fill="#6a30e0" />
+    <path d="M 0 0 L -25 0 A 25 25 0 0 1 0 -25 Z" fill="#ff7d50" />
+    <path d="M 0 0 L 0 -25 A 25 25 0 0 1 25 0 Z" fill="#f5f5f7" />
+  </g>
+</svg> 

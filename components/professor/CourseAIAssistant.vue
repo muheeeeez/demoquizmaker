@@ -157,7 +157,7 @@ const sendMessage = () => {
 }
 
 .user-message .message-avatar {
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
 }
 
@@ -169,7 +169,7 @@ const sendMessage = () => {
 }
 
 .user-message .message-content {
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
 }
 
@@ -194,15 +194,26 @@ const sendMessage = () => {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.chat-input input:focus {
+  border-color: #ff784b;
+  box-shadow: 0 0 0 2px rgba(255, 120, 75, 0.2);
 }
 
 .send-btn {
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 0 20px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.send-btn:hover {
+  background-color: #e56e45;
 }
 
 @media (max-width: 480px) {
