@@ -3,35 +3,35 @@ import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto from 'node:crypto';
 import { parentPort, threadId } from 'node:worker_threads';
-import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, getRequestURL, getResponseHeader, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, createError, getRouterParam, readBody, getQuery as getQuery$1, getResponseStatusText } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/h3/dist/index.mjs';
-import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/vue-bundle-renderer/dist/runtime.mjs';
-import destr from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/destr/dist/index.mjs';
-import { parseURL, withoutBase, joinURL, getQuery, withQuery, withTrailingSlash, joinRelativeURL } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/ufo/dist/index.mjs';
-import { createHead as createHead$1, propsToString, renderSSRHead } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unhead/dist/server.mjs';
-import { isVNode, toValue, isRef } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/vue/index.mjs';
-import { walkResolver } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unhead/dist/utils.mjs';
-import { klona } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/klona/dist/index.mjs';
-import defu, { defuFn } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/defu/dist/defu.mjs';
-import { snakeCase } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/scule/dist/index.mjs';
-import { stringify, uneval } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/devalue/index.js';
-import { DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unhead/dist/plugins.mjs';
-import { createHooks } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/hookable/dist/index.mjs';
-import { createFetch, Headers as Headers$1 } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/ofetch/dist/node.mjs';
-import { fetchNodeRequestHandler, callNodeRequestHandler } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/node-mock-http/dist/index.mjs';
-import { createStorage, prefixStorage } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unstorage/dist/index.mjs';
-import unstorage_47drivers_47fs from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unstorage/drivers/fs.mjs';
-import { digest } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/ohash/dist/index.mjs';
-import { toRouteMatcher, createRouter } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/radix3/dist/index.mjs';
+import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, getRequestURL, getResponseHeader, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, createError, getRouterParam, readBody, getQuery as getQuery$1, getResponseStatusText } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/h3/dist/index.mjs';
+import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/vue-bundle-renderer/dist/runtime.mjs';
+import destr from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/destr/dist/index.mjs';
+import { parseURL, withoutBase, joinURL, getQuery, withQuery, withTrailingSlash, joinRelativeURL } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/ufo/dist/index.mjs';
+import { createHead as createHead$1, propsToString, renderSSRHead } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unhead/dist/server.mjs';
+import { isVNode, toValue, isRef } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/vue/index.mjs';
+import { walkResolver } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unhead/dist/utils.mjs';
+import { klona } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/klona/dist/index.mjs';
+import defu, { defuFn } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/defu/dist/defu.mjs';
+import { snakeCase } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/scule/dist/index.mjs';
+import { stringify, uneval } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/devalue/index.js';
+import { DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unhead/dist/plugins.mjs';
+import { createHooks } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/hookable/dist/index.mjs';
+import { createFetch, Headers as Headers$1 } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/ofetch/dist/node.mjs';
+import { fetchNodeRequestHandler, callNodeRequestHandler } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/node-mock-http/dist/index.mjs';
+import { createStorage, prefixStorage } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unstorage/dist/index.mjs';
+import unstorage_47drivers_47fs from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unstorage/drivers/fs.mjs';
+import { digest } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/ohash/dist/index.mjs';
+import { toRouteMatcher, createRouter } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/radix3/dist/index.mjs';
 import { readFile } from 'node:fs/promises';
-import consola, { consola as consola$1 } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/consola/dist/index.mjs';
-import { ErrorParser } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/youch-core/build/index.js';
-import { Youch } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/youch/build/index.js';
-import { SourceMapConsumer } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/source-map/source-map.js';
+import consola, { consola as consola$1 } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/consola/dist/index.mjs';
+import { ErrorParser } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/youch-core/build/index.js';
+import { Youch } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/youch/build/index.js';
+import { SourceMapConsumer } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/source-map/source-map.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { getContext } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/unctx/dist/index.mjs';
-import { captureRawStackTrace, parseRawStackTrace } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/node_modules/errx/dist/index.js';
+import { getContext } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/unctx/dist/index.mjs';
+import { captureRawStackTrace, parseRawStackTrace } from 'file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/node_modules/errx/dist/index.js';
 
-const serverAssets = [{"baseName":"server","dir":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/server/assets"}];
+const serverAssets = [{"baseName":"server","dir":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/server/assets"}];
 
 const assets = createStorage();
 
@@ -43,11 +43,11 @@ const storage = createStorage({});
 
 storage.mount('/assets', assets);
 
-storage.mount('root', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI","watchOptions":{"ignored":[null]}}));
-storage.mount('src', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/server","watchOptions":{"ignored":[null]}}));
-storage.mount('build', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/.nuxt"}));
-storage.mount('cache', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/.nuxt/cache"}));
-storage.mount('data', unstorage_47drivers_47fs({"driver":"fs","base":"C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/.data/kv"}));
+storage.mount('root', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend","watchOptions":{"ignored":[null]}}));
+storage.mount('src', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/server","watchOptions":{"ignored":[null]}}));
+storage.mount('build', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/.nuxt"}));
+storage.mount('cache', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/.nuxt/cache"}));
+storage.mount('data', unstorage_47drivers_47fs({"driver":"fs","base":"C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/.data/kv"}));
 
 function useStorage(base = "") {
   return base ? prefixStorage(storage, base) : storage;
@@ -999,13 +999,13 @@ if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
 window.__NUXT_DEVTOOLS_TIME_METRIC__.appInit = Date.now()
 `;
 
-const _3nVDLkS48cgoHpGCJbRBS4Fipdz5LfdANf7NrK7dyx0 = (function(nitro) {
+const _qHFsNVjGkeaj9WRumlQtScHrs5mWu3T6pxqsuAZt850 = (function(nitro) {
   nitro.hooks.hook("render:html", (htmlContext) => {
     htmlContext.head.push(`<script>${script}<\/script>`);
   });
 });
 
-const rootDir = "C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI";
+const rootDir = "C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend";
 
 const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[]};
 
@@ -1024,7 +1024,7 @@ const devReducers = {
   URL: (data) => data instanceof URL ? data.toString() : void 0
 };
 const asyncContext = getContext("nuxt-dev", { asyncContext: true, AsyncLocalStorage });
-const _cuxA8cxfyUlmiwxSlQXSGM7I3K9hr30dthBDboPzRMY = (nitroApp) => {
+const _AEOR7IWcIFzxKpq5SVZZxsjoDBUvbNOKnjGhFKaFYIM = (nitroApp) => {
   const handler = nitroApp.h3App.handler;
   nitroApp.h3App.handler = (event) => {
     return asyncContext.callAsync({ logs: [], event }, () => handler(event));
@@ -1094,15 +1094,15 @@ function onConsoleLog(callback) {
 }
 
 const plugins = [
-  _3nVDLkS48cgoHpGCJbRBS4Fipdz5LfdANf7NrK7dyx0,
-_cuxA8cxfyUlmiwxSlQXSGM7I3K9hr30dthBDboPzRMY
+  _qHFsNVjGkeaj9WRumlQtScHrs5mWu3T6pxqsuAZt850,
+_AEOR7IWcIFzxKpq5SVZZxsjoDBUvbNOKnjGhFKaFYIM
 ];
 
-const _lazy_mi3WcK = () => Promise.resolve().then(function () { return renderer$1; });
+const _lazy_ksswaC = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
-  { route: '/__nuxt_error', handler: _lazy_mi3WcK, lazy: true, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_mi3WcK, lazy: true, middleware: false, method: undefined }
+  { route: '/__nuxt_error', handler: _lazy_ksswaC, lazy: true, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_ksswaC, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {
@@ -1457,7 +1457,7 @@ function publicAssetsURL(...path) {
 
 const APP_ROOT_OPEN_TAG = `<${appRootTag}${propsToString(appRootAttrs)}>`;
 const APP_ROOT_CLOSE_TAG = `</${appRootTag}>`;
-const getClientManifest = () => import('file://C:/Users/abdul/OneDrive/Documents/Projects/QuizMakerAI/.nuxt/dist/server/client.manifest.mjs').then((r) => r.default || r).then((r) => typeof r === "function" ? r() : r);
+const getClientManifest = () => import('file://C:/Users/abdul/OneDrive/Documents/Projects/Genertia_QuizmakerFrontend/.nuxt/dist/server/client.manifest.mjs').then((r) => r.default || r).then((r) => typeof r === "function" ? r() : r);
 const getSSRStyles = lazyCachedFunction(() => Promise.resolve().then(function () { return styles$1; }).then((r) => r.default || r));
 const getSPARenderer = lazyCachedFunction(async () => {
   const manifest = await getClientManifest();
