@@ -252,8 +252,8 @@
                 <div class="file-upload-box" @click="triggerFileInput">
                   <i class="fas fa-cloud-upload-alt"></i>
                   <p>Click to select file or drag and drop</p>
-                  <p class="file-name" v-if="newMaterial.file">
-                    {{ newMaterial.file.name }}
+                  <p v-if="uploadedFile" class="file-name">
+                    {{ uploadedFile.name }} ({{ formatFileSize(uploadedFile.size) }})
                   </p>
                 </div>
               </div>
@@ -847,28 +847,49 @@ const showAddMaterialModal = ref(false)
 const showAIGenerateModal = ref(false)
 const showMaterialDetailModal = ref(false)
 const showDeleteConfirmation = ref(false)
-const selectedMaterial = ref(null)
+const showGenerateQuizModal = ref(false)
+const showPreviewModal = ref(false)
+const selectedMaterial = ref({})
+const currentPage = ref(1)
+const totalPages = ref(5) // Mock value for the PDF preview
+const zoomLevel = ref(100)
 
-// New material form
+// Reference to the file input element
+const fileInput = ref(null)
+const uploadedFile = ref(null)
+const isUploading = ref(false)
+const isGenerating = ref(false)
+const isGeneratingQuiz = ref(false)
+
+// New material form with topics support
 const newMaterial = ref({
   title: '',
   description: '',
   type: 'document',
   format: 'pdf',
+  topicsInput: '',
   topics: []
 })
 
 // AI generation form
-const aiGenerateForm = ref({
+const aiGenerate = ref({
   topic: '',
-  difficulty: 'intermediate',
-  materialType: 'document'
+  type: '',
+  format: 'pdf',
+  level: 'intermediate',
+  instructions: ''
 })
 
-// File upload refs
-const uploadProgress = computed(() => materialsStore.uploadProgress)
-const fileInput = ref(null)
-const uploadedFile = ref(null)
+// Quiz generation form
+const quizGenerate = ref({
+  title: '',
+  questionCount: 10,
+  difficulty: 'intermediate',
+  timeLimit: 30,
+  questionTypes: ['multipleChoice'],
+  topics: [],
+  previewBeforeSave: false
+})
 
 // Initialize data when component is mounted
 onMounted(async () => {
@@ -910,8 +931,7 @@ const filteredMaterials = computed(() => {
   
   // Apply type filter
   if (typeFilter.value !== 'all') {
-    materials = materials.filter(material => material.type === typeFilter.value)
-  }
+    materials = materials.filter(material => material.type === typeFilter.value)}
   
   // Apply topic filter
   if (topicFilter.value !== 'all' && topicFilter.value) {
@@ -1009,8 +1029,8 @@ function formatDate(dateString) {
   })
 }
 
-function formatSize(sizeString) {
-  return sizeString
+function formatDuration(durationString) {
+  return durationString;
 }
 
 function getFileIcon(format) {
@@ -1044,16 +1064,79 @@ function getCategoryIcon(category) {
   return icons[category] || 'fas fa-folder'
 }
 
+// Function to trigger the file input click
+function triggerFileInput() {
+  const fileInputElement = document.getElementById('materialFile')
+  if (fileInputElement) {
+    fileInputElement.click()
+  }
+}
+
+// Handle file selection
+function handleFileChange(event) {
+  uploadedFile.value = event.target.files[0]
+  
+  if (uploadedFile.value) {
+    // Auto-fill form fields based on file properties
+    const fileName = uploadedFile.value.name
+    const fileExt = fileName.split('.').pop().toLowerCase()
+    
+    // Suggest a title based on filename (if not already set)
+    if (!newMaterial.value.title) {
+      newMaterial.value.title = fileName.split('.')[0]
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase())
+    }
+    
+    // Set format based on file extension
+    newMaterial.value.format = fileExt
+    
+    // Set material type based on file extension
+    if (['pdf', 'doc', 'docx', 'txt'].includes(fileExt)) {
+      newMaterial.value.type = 'document'
+    } else if (['ppt', 'pptx'].includes(fileExt)) {
+      newMaterial.value.type = 'presentation'
+    } else if (['mp4', 'avi', 'mov'].includes(fileExt)) {
+      newMaterial.value.type = 'video'
+    } else if (['mp3', 'wav'].includes(fileExt)) {
+      newMaterial.value.type = 'audio'
+    }
+  }
+}
+
+// Format file size for display
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes'
+  
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  
+  return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
 // Material actions
 function viewMaterial(material) {
   selectedMaterial.value = material
-  showMaterialDetailModal.value = true
+  showPreviewModal.value = true
+  // Reset preview state
+  currentPage.value = 1
+  zoomLevel.value = 100
 }
 
 function downloadMaterial(material) {
-  // In a real app, this would trigger a download
-  console.log('Downloading:', material.title)
-  alert(`Downloading "${material.title}" (Demo - no actual download)`)
+  // For files with blob URLs (from upload), we can trigger a download
+  if (material.url && material.url !== '#') {
+    const link = document.createElement('a')
+    link.href = material.url
+    link.download = material.title + '.' + material.format
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } else {
+    // In a real app, this would trigger a download from the server
+    console.log('Downloading:', material.title)
+    alert(`Downloading "${material.title}" (Demo - no actual download)`)
+  }
 }
 
 function editMaterial(material) {
@@ -1064,6 +1147,8 @@ function editMaterial(material) {
     description: material.description || '',
     type: material.type,
     format: material.format,
+    // Handle topics for editing
+    topicsInput: material.topics ? material.topics.join(', ') : '',
     topics: material.topics || []
   }
   showAddMaterialModal.value = true
@@ -1081,62 +1166,36 @@ function copyLink(material) {
   alert(`Link copied for "${material.title}" (Demo - no actual copy)`)
 }
 
-function confirmDeleteMaterial(material) {
-  selectedMaterial.value = material
-  showDeleteConfirmation.value = true
-}
-
-async function deleteMaterial() {
-  if (!selectedMaterial.value) return
-  
-  try {
-    await materialsStore.deleteMaterial(props.course.id, selectedMaterial.value.id)
-    showDeleteConfirmation.value = false
-    selectedMaterial.value = null
-  } catch (error) {
-    console.error('Error deleting material:', error)
+function deleteMaterial(material) {
+  if (confirm(`Are you sure you want to delete "${material.title}"? This action cannot be undone.`)) {
+    materialsStore.deleteMaterial(props.course.id, material.id)
+      .then(() => {
+        alert(`Material "${material.title}" deleted successfully`)
+      })
+      .catch(error => {
+        console.error('Error deleting material:', error)
+        alert('Failed to delete material. Please try again.')
+      })
   }
 }
 
 function generateQuiz(material) {
-  // In a real app, this would generate a quiz based on the material
-  console.log('Generating quiz from:', material.title)
-  alert(`Quiz generation initiated for "${material.title}" (Demo)`)
-}
-
-// File handlers
-function handleFileUpload(event) {
-  uploadedFile.value = event.target.files[0]
+  selectedMaterial.value = material
+  showGenerateQuizModal.value = true
   
-  if (uploadedFile.value) {
-    // Auto-fill some form fields based on the file
-    const fileName = uploadedFile.value.name
-    const fileExt = fileName.split('.').pop().toLowerCase()
-    
-    // Suggest a title based on filename
-    if (!newMaterial.value.title) {
-      newMaterial.value.title = fileName.split('.')[0]
-        .replace(/[-_]/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase())
-    }
-    
-    // Set format based on file extension
-    newMaterial.value.format = fileExt
-    
-    // Set type based on file extension
-    if (['pdf', 'doc', 'docx', 'txt'].includes(fileExt)) {
-      newMaterial.value.type = 'document'
-    } else if (['ppt', 'pptx'].includes(fileExt)) {
-      newMaterial.value.type = 'presentation'
-    } else if (['mp4', 'avi', 'mov'].includes(fileExt)) {
-      newMaterial.value.type = 'video'
-    } else if (['mp3', 'wav'].includes(fileExt)) {
-      newMaterial.value.type = 'audio'
-    }
+  // Initialize the quiz form with material data
+  quizGenerate.value = {
+    title: `Quiz on ${material.title}`,
+    questionCount: 10,
+    difficulty: 'intermediate',
+    timeLimit: 30,
+    questionTypes: ['multipleChoice'],
+    topics: material.topics || [],
+    previewBeforeSave: false
   }
 }
 
-// Form submissions
+// Upload or update material
 async function uploadMaterial() {
   if (!uploadedFile.value && !selectedMaterial.value) {
     alert('Please select a file to upload')
@@ -1144,9 +1203,21 @@ async function uploadMaterial() {
   }
   
   try {
+    isUploading.value = true
+    
+    // Prepare the material data including the file
     const materialData = {
       ...newMaterial.value,
-      size: uploadedFile.value ? formatFileSize(uploadedFile.value.size) : selectedMaterial.value.size
+      file: uploadedFile.value,
+      size: uploadedFile.value ? formatFileSize(uploadedFile.value.size) : selectedMaterial.value?.size
+    }
+    
+    // Process topics from the input field
+    if (newMaterial.value.topicsInput) {
+      materialData.topics = newMaterial.value.topicsInput
+        .split(',')
+        .map(topic => topic.trim())
+        .filter(Boolean)
     }
     
     if (selectedMaterial.value) {
@@ -1159,34 +1230,58 @@ async function uploadMaterial() {
       alert('Material uploaded successfully')
     }
     
+    // Close the modal and reset form
     closeAddMaterialModal()
   } catch (error) {
     console.error('Error uploading material:', error)
-    alert('Failed to upload material. Please try again.')
+    alert('Failed to upload material: ' + (error.message || 'Unknown error'))
+  } finally {
+    isUploading.value = false
   }
 }
 
-async function generateAIMaterial() {
+async function generateMaterial() {
   try {
-    const topics = [aiGenerateForm.value.topic]
-    await materialsStore.generateAIMaterials(props.course.id, topics)
+    isGenerating.value = true
+    
+    // Call the store method to generate AI materials
+    const topics = [aiGenerate.value.topic]
+    const result = await materialsStore.generateAIMaterials(props.course.id, topics)
+    
+    if (result && result.length > 0) {
+      alert('AI-generated material created successfully!')
+    } else {
+      alert('Failed to generate material. Please try again.')
+    }
     
     closeAIGenerateModal()
-    alert('Materials generated successfully!')
   } catch (error) {
-    console.error('Error generating AI materials:', error)
-    alert('Failed to generate materials. Please try again.')
+    console.error('Error generating material:', error)
+    alert('Failed to generate material: ' + (error.message || 'Unknown error'))
+  } finally {
+    isGenerating.value = false
   }
 }
 
-// Format file size from bytes to human-readable format
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes'
-  
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  
-  return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i]
+async function createQuizFromMaterial() {
+  try {
+    isGeneratingQuiz.value = true
+    
+    // In a real app, this would call an API to generate a quiz
+    // For now, just simulate the process
+    await new Promise(r => setTimeout(r, 1500))
+    
+    alert(`Quiz "${quizGenerate.value.title}" has been generated successfully!`)
+    closeGenerateQuizModal()
+    
+    // Navigate to the Quizzes tab
+    emit('changeTab', 'quizzes')
+  } catch (error) {
+    console.error('Error generating quiz:', error)
+    alert('Failed to generate quiz: ' + (error.message || 'Unknown error'))
+  } finally {
+    isGeneratingQuiz.value = false
+  }
 }
 
 // Modal controls
@@ -1198,42 +1293,37 @@ function closeAddMaterialModal() {
     description: '',
     type: 'document',
     format: 'pdf',
+    topicsInput: '',
     topics: []
   }
   uploadedFile.value = null
-  if (fileInput.value) {
-    fileInput.value.value = '' // Reset file input
+  
+  // Reset file input
+  const fileInputElement = document.getElementById('materialFile')
+  if (fileInputElement) {
+    fileInputElement.value = ''
   }
 }
 
 function closeAIGenerateModal() {
   showAIGenerateModal.value = false
-  aiGenerateForm.value = {
+  aiGenerate.value = {
     topic: '',
-    difficulty: 'intermediate',
-    materialType: 'document'
+    type: '',
+    format: 'pdf',
+    level: 'intermediate',
+    instructions: ''
   }
 }
 
-function closeMaterialDetailModal() {
-  showMaterialDetailModal.value = false
+function closeGenerateQuizModal() {
+  showGenerateQuizModal.value = false
   selectedMaterial.value = null
 }
 
-// Add/remove topic in the form
-function addTopic() {
-  const topicInput = document.getElementById('newTopic')
-  if (topicInput && topicInput.value.trim()) {
-    const newTopic = topicInput.value.trim()
-    if (!newMaterial.value.topics.includes(newTopic)) {
-      newMaterial.value.topics.push(newTopic)
-    }
-    topicInput.value = ''
-  }
-}
-
-function removeTopic(index) {
-  newMaterial.value.topics.splice(index, 1)
+function closePreviewModal() {
+  showPreviewModal.value = false
+  selectedMaterial.value = null
 }
 </script>
 <style scoped>

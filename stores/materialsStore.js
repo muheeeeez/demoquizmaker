@@ -10,7 +10,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '2.4 MB',
       uploadedAt: '2023-03-10T09:30:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Programming', 'Fundamentals', 'Computer Science']
     },
     {
       id: 10002,
@@ -19,7 +20,8 @@ const demoMaterials = {
       format: 'pptx',
       size: '5.1 MB',
       uploadedAt: '2023-03-12T14:15:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Variables', 'Data Types', 'Programming']
     },
     {
       id: 10003,
@@ -29,7 +31,8 @@ const demoMaterials = {
       size: '45.7 MB',
       uploadedAt: '2023-03-15T11:45:00Z',
       url: '#',
-      duration: '12:34'
+      duration: '12:34',
+      topics: ['Control Structures', 'Loops', 'Conditionals']
     }
   ],
   2: [
@@ -40,7 +43,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '3.2 MB',
       uploadedAt: '2023-03-08T10:20:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Calculus', 'Limits', 'Continuity']
     },
     {
       id: 20002,
@@ -49,7 +53,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '1.8 MB',
       uploadedAt: '2023-03-14T15:30:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Calculus', 'Derivatives', 'Practice Problems']
     }
   ],
   3: [
@@ -60,7 +65,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '4.5 MB',
       uploadedAt: '2023-03-05T08:30:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Data Structures', 'Computer Science', 'Algorithms']
     },
     {
       id: 30002,
@@ -69,7 +75,8 @@ const demoMaterials = {
       format: 'pptx',
       size: '8.2 MB',
       uploadedAt: '2023-03-10T13:45:00Z',
-      url: '#'
+      url: '#',
+      topics: ['Algorithms', 'Big O Notation', 'Complexity']
     },
     {
       id: 30003,
@@ -79,7 +86,8 @@ const demoMaterials = {
       size: '62.8 MB',
       uploadedAt: '2023-03-18T14:30:00Z',
       url: '#',
-      duration: '18:22'
+      duration: '18:22',
+      topics: ['Trees', 'Data Structures', 'Traversal Algorithms']
     }
   ],
   4: [
@@ -90,7 +98,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '2.1 MB',
       uploadedAt: '2023-03-07T09:15:00Z',
-      url: '#'
+      url: '#',
+      topics: ['HTML', 'Web Development', 'Frontend']
     },
     {
       id: 40002,
@@ -99,7 +108,8 @@ const demoMaterials = {
       format: 'pdf',
       size: '3.4 MB',
       uploadedAt: '2023-03-12T11:30:00Z',
-      url: '#'
+      url: '#',
+      topics: ['CSS', 'Flexbox', 'Web Development']
     },
     {
       id: 40003,
@@ -108,7 +118,8 @@ const demoMaterials = {
       format: 'pptx',
       size: '4.8 MB',
       uploadedAt: '2023-03-15T14:45:00Z',
-      url: '#'
+      url: '#',
+      topics: ['JavaScript', 'Programming', 'Web Development']
     },
     {
       id: 40004,
@@ -118,7 +129,8 @@ const demoMaterials = {
       size: '78.5 MB',
       uploadedAt: '2023-03-20T10:00:00Z',
       url: '#',
-      duration: '25:14'
+      duration: '25:14',
+      topics: ['Web Development', 'Web Apps', 'Frontend']
     }
   ]
 };
@@ -211,13 +223,7 @@ export const useMaterialsStore = defineStore("materials", {
       this.uploadProgress = 0;
       
       try {
-        // In a real app, this would be a file upload
-        // const formData = new FormData();
-        // for (const key in materialData) {
-        //   formData.append(key, materialData[key]);
-        // }
-        
-        // Simulate upload progress
+        // Start upload progress simulation
         const progressInterval = setInterval(() => {
           this.uploadProgress += 10;
           if (this.uploadProgress >= 100) {
@@ -225,10 +231,25 @@ export const useMaterialsStore = defineStore("materials", {
           }
         }, 300);
         
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Process the file if it exists
+        let fileUrl = '#';
+        let fileSize = materialData.size || '3.2 MB';
         
-        // Clear interval if it's still running
+        // In a real implementation, you would upload the file to a server here
+        // For now, we'll create a temporary URL if a file was provided
+        if (materialData.file) {
+          fileUrl = URL.createObjectURL(materialData.file);
+          
+          // If size wasn't calculated by the component, do it here
+          if (typeof fileSize === 'undefined') {
+            fileSize = this.formatFileSize(materialData.file.size);
+          }
+        }
+        
+        // Simulate server response delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Clear progress interval
         clearInterval(progressInterval);
         this.uploadProgress = 100;
         
@@ -238,13 +259,14 @@ export const useMaterialsStore = defineStore("materials", {
           title: materialData.title,
           type: materialData.type,
           format: materialData.format,
-          size: materialData.size || '3.2 MB',
+          size: fileSize,
           uploadedAt: new Date().toISOString(),
-          url: '#'
+          url: fileUrl,
+          topics: materialData.topics || []
         };
         
-        // Add duration if it's a video
-        if (materialData.type === 'video' && materialData.duration) {
+        // Add duration if it's a video or audio
+        if ((materialData.type === 'video' || materialData.type === 'audio') && materialData.duration) {
           newMaterial.duration = materialData.duration;
         }
         
@@ -259,7 +281,67 @@ export const useMaterialsStore = defineStore("materials", {
         return newMaterial;
       } catch (error) {
         console.error('Error uploading material:', error);
-        this.error = 'Failed to upload material';
+        this.error = 'Failed to upload material: ' + error.message;
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Update an existing material
+     */
+    async updateMaterial(courseId, materialId, materialData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        // In a real app, this would be an API call
+        // await fetch(`/api/courses/${courseId}/materials/${materialId}`, {
+        //   method: 'PUT',
+        //   body: JSON.stringify(materialData)
+        // });
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Find and update the material in the store
+        if (this.materials[courseId]) {
+          const index = this.materials[courseId].findIndex(
+            material => material.id === materialId
+          );
+          
+          if (index !== -1) {
+            // If a new file was provided, create a URL for it
+            if (materialData.file) {
+              materialData.url = URL.createObjectURL(materialData.file);
+            } else {
+              // Keep the existing URL if no new file was provided
+              materialData.url = this.materials[courseId][index].url;
+            }
+            
+            // Update the material but preserve some original fields
+            this.materials[courseId][index] = {
+              ...this.materials[courseId][index],
+              title: materialData.title,
+              type: materialData.type,
+              format: materialData.format,
+              topics: materialData.topics || [],
+              // Only update size and URL if a new file was provided
+              ...(materialData.file ? {
+                size: materialData.size,
+                url: materialData.url
+              } : {})
+            };
+            
+            return this.materials[courseId][index];
+          }
+        }
+        
+        throw new Error('Material not found');
+      } catch (error) {
+        console.error('Error updating material:', error);
+        this.error = 'Failed to update material';
         return null;
       } finally {
         this.loading = false;
@@ -284,6 +366,15 @@ export const useMaterialsStore = defineStore("materials", {
         
         // Remove the material from the store
         if (this.materials[courseId]) {
+          // Find the material to potentially revoke its object URL
+          const material = this.materials[courseId].find(m => m.id === materialId);
+          
+          // If the material has a blob URL, revoke it to free memory
+          if (material && material.url && material.url.startsWith('blob:')) {
+            URL.revokeObjectURL(material.url);
+          }
+          
+          // Filter out the material
           this.materials[courseId] = this.materials[courseId].filter(
             material => material.id !== materialId
           );
@@ -333,7 +424,8 @@ export const useMaterialsStore = defineStore("materials", {
             ...materialType,
             uploadedAt: new Date().toISOString(),
             url: '#',
-            aiGenerated: true
+            isGenerated: true,
+            topics: [topic, 'AI Generated']
           };
         });
         
@@ -363,6 +455,18 @@ export const useMaterialsStore = defineStore("materials", {
     },
     
     /**
+     * Format file size helper
+     */
+    formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      
+      return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+    
+    /**
      * Generate demo materials for courses without predefined data
      */
     generateDemoMaterials(courseId) {
@@ -371,26 +475,30 @@ export const useMaterialsStore = defineStore("materials", {
           type: 'document',
           format: 'pdf',
           title: 'Course Introduction',
-          size: '1.8 MB'
+          size: '1.8 MB',
+          topics: ['Introduction', 'Overview', 'Syllabus']
         },
         {
           type: 'document',
           format: 'pdf',
           title: 'Week 1 Notes',
-          size: '2.4 MB'
+          size: '2.4 MB',
+          topics: ['Week 1', 'Fundamentals', 'Basics']
         },
         {
           type: 'presentation',
           format: 'pptx',
           title: 'Key Concepts Overview',
-          size: '5.6 MB'
+          size: '5.6 MB',
+          topics: ['Key Concepts', 'Overview', 'Fundamentals']
         },
         {
           type: 'video',
           format: 'mp4',
           title: 'Getting Started Tutorial',
           size: '32.5 MB',
-          duration: '8:45'
+          duration: '8:45',
+          topics: ['Tutorial', 'Getting Started', 'Introduction']
         }
       ];
       
@@ -409,9 +517,10 @@ export const useMaterialsStore = defineStore("materials", {
           size: template.size,
           uploadedAt: new Date(Date.now() - (index * 86400000)).toISOString(), // Different days
           url: '#',
-          ...(template.type === 'video' ? { duration: template.duration } : {})
+          topics: template.topics || [],
+          ...(template.type === 'video' ? { duration: template.duration || '10:00' } : {})
         };
       });
     }
   }
-}); 
+});
