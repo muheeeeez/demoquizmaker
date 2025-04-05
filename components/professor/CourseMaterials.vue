@@ -245,6 +245,7 @@
                 <input
                   type="file"
                   id="materialFile"
+                  ref="fileInput"
                   @change="handleFileChange"
                   class="file-input"
                   accept=".pdf,.docx,.pptx,.xlsx,.mp4,.mp3,.txt"
@@ -830,6 +831,9 @@ const props = defineProps({
   }
 })
 
+// Define emits
+const emit = defineEmits(['changeTab'])
+
 // Store
 const materialsStore = useMaterialsStore()
 
@@ -1066,9 +1070,13 @@ function getCategoryIcon(category) {
 
 // Function to trigger the file input click
 function triggerFileInput() {
-  const fileInputElement = document.getElementById('materialFile')
-  if (fileInputElement) {
-    fileInputElement.click()
+  if (fileInput.value) {
+    fileInput.value.click();
+  } else {
+    const fileInputElement = document.getElementById('materialFile');
+    if (fileInputElement) {
+      fileInputElement.click();
+    }
   }
 }
 
@@ -1197,7 +1205,8 @@ function generateQuiz(material) {
 
 // Upload or update material
 async function uploadMaterial() {
-  if (!uploadedFile.value && !selectedMaterial.value) {
+  // For updates, no file is needed
+  if (!uploadedFile.value && !selectedMaterial.value.id) {
     alert('Please select a file to upload')
     return
   }
@@ -1209,7 +1218,9 @@ async function uploadMaterial() {
     const materialData = {
       ...newMaterial.value,
       file: uploadedFile.value,
-      size: uploadedFile.value ? formatFileSize(uploadedFile.value.size) : selectedMaterial.value?.size
+      size: uploadedFile.value ? formatFileSize(uploadedFile.value.size) : selectedMaterial.value?.size,
+      // Add upload date if it's a new material
+      uploadedAt: selectedMaterial.value?.uploadedAt || new Date().toISOString()
     }
     
     // Process topics from the input field
@@ -1220,11 +1231,19 @@ async function uploadMaterial() {
         .filter(Boolean)
     }
     
-    if (selectedMaterial.value) {
+    // Create a URL for the file preview if a new file is uploaded
+    if (uploadedFile.value) {
+      materialData.url = URL.createObjectURL(uploadedFile.value)
+    }
+    
+    if (selectedMaterial.value?.id) {
       // Update existing material
       await materialsStore.updateMaterial(props.course.id, selectedMaterial.value.id, materialData)
       alert('Material updated successfully')
     } else {
+      // Generate a unique ID for the new material
+      materialData.id = 'material_' + Date.now()
+      
       // Upload new material
       await materialsStore.uploadMaterial(props.course.id, materialData)
       alert('Material uploaded successfully')

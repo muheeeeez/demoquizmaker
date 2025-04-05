@@ -3,46 +3,55 @@
     <div class="detail-card">
       <div class="card-header-with-action">
         <h3><i class="fas fa-clipboard-list"></i> Active Quizzes</h3>
-        <button class="primary-button"><i class="fas fa-plus"></i> Create Quiz</button>
+        <button class="primary-button" @click="showCreateQuizModal = true"><i class="fas fa-plus"></i> Create Quiz</button>
       </div>
       
-      <!-- Empty state if no quizzes -->
-      <div v-if="quizzes.length === 0" class="empty-state">
-        <i class="fas fa-clipboard empty-icon"></i>
-        <p>No quizzes have been created for this course yet.</p>
-        <button class="primary-button"><i class="fas fa-plus"></i> Create Your First Quiz</button>
-      </div>
+      <!-- Quiz List Component -->
+      <quiz-list 
+        :quizzes="quizzes"
+        @create-quiz="showCreateQuizModal = true"
+        @edit-quiz="editQuiz"
+        @view-results="viewResults"
+        @duplicate-quiz="duplicateQuiz"
+      />
+    </div>
+
+    <!-- Modal Overlay -->
+    <div v-if="showCreateQuizModal || showEditQuizModal || showResultsModal" class="modal-overlay" @click.self="closeAllModals">
+      <!-- Create Quiz Modal -->
+      <quiz-creation-wizard 
+        v-if="showCreateQuizModal"
+        :course-materials="courseMaterials"
+        :course-code="course.code"
+        @close="showCreateQuizModal = false"
+        @generate-quiz="generateQuiz"
+      />
       
-      <!-- Quiz list -->
-      <div v-else class="quiz-list">
-        <div v-for="quiz in quizzes" :key="quiz.id" class="list-item">
-          <div class="list-item-content">
-            <h4><i class="fas fa-file-alt"></i> {{ quiz.title }}</h4>
-            <p><i class="far fa-clock"></i> {{ quiz.dueDate }} • {{ quiz.questions }} questions • {{ quiz.timeLimit }} minutes</p>
-          </div>
-          <div class="list-item-stats">
-            <div class="item-stat">
-              <span class="stat-value">{{ quiz.submissions }}</span>
-              <span class="stat-label">Submissions</span>
-            </div>
-            <div class="item-stat">
-              <span class="stat-value">{{ quiz.averageScore }}%</span>
-              <span class="stat-label">Avg. Score</span>
-            </div>
-          </div>
-          <div class="list-item-actions">
-            <button class="action-btn"><i class="fas fa-edit"></i> Edit</button>
-            <button class="action-btn"><i class="fas fa-poll"></i> Results</button>
-            <button class="action-btn"><i class="fas fa-copy"></i> Duplicate</button>
-          </div>
-        </div>
-      </div>
+      <!-- Edit Quiz Modal -->
+      <quiz-edit-modal
+        v-if="showEditQuizModal"
+        :quiz="selectedQuiz"
+        @close="closeEditQuizModal"
+        @save="saveQuizChanges"
+      />
+      
+      <!-- Quiz Results Modal -->
+      <quiz-results-modal
+        v-if="showResultsModal"
+        :quiz="selectedQuiz"
+        @close="closeResultsModal"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useMaterialsStore } from '../../stores/materialsStore'
+import QuizList from './QuizList.vue'
+import QuizCreationWizard from './QuizCreationWizard.vue'
+import QuizEditModal from './QuizEditModal.vue'
+import QuizResultsModal from './QuizResultsModal.vue'
 
 const props = defineProps({
   course: {
@@ -51,8 +60,41 @@ const props = defineProps({
   }
 })
 
-// Generate quizzes based on course
-const quizzes = computed(() => {
+// Store instances
+const materialsStore = useMaterialsStore()
+
+// Modal control
+const showCreateQuizModal = ref(false)
+const showEditQuizModal = ref(false)
+const showResultsModal = ref(false)
+const selectedQuiz = ref({})
+
+// List of quizzes (changing from computed to ref so we can update it)
+const quizzesList = ref([])
+
+// Course materials
+const courseMaterials = ref([])
+
+// Initialize quizzes and materials on mount
+onMounted(async () => {
+  // Initialize with the computed quiz data
+  quizzesList.value = generateInitialQuizzes()
+  
+  if (props.course?.id) {
+    await loadCourseMaterials()
+  }
+})
+
+// Watch for course changes
+watch(() => props.course?.id, async (newId) => {
+  if (newId) {
+    quizzesList.value = generateInitialQuizzes()
+    await loadCourseMaterials()
+  }
+}, { immediate: false })
+
+// Generate initial quizzes based on course
+function generateInitialQuizzes() {
   // Return empty array if course has no quizzes
   if (props.course.quizzes === 0) {
     return []
@@ -76,7 +118,7 @@ const quizzes = computed(() => {
   }
   
   return courseQuizzes
-})
+}
 
 // Helper to generate relevant quiz titles based on course code
 function getQuizTitle(courseCode, quizNumber) {
@@ -92,6 +134,115 @@ function getQuizTitle(courseCode, quizNumber) {
   
   // Return appropriate title or fallback
   return courseSpecificTitles[quizNumber - 1] || `Topic ${quizNumber}`
+}
+
+// Replace the computed quizzes with the ref
+const quizzes = computed(() => quizzesList.value)
+
+// Load materials for current course
+async function loadCourseMaterials() {
+  try {
+    await materialsStore.fetchMaterials(props.course.id)
+    courseMaterials.value = materialsStore.getCourseMaterials(props.course.id)
+  } catch (error) {
+    console.error('Error loading course materials:', error)
+  }
+}
+
+// Edit quiz function
+function editQuiz(quiz) {
+  selectedQuiz.value = JSON.parse(JSON.stringify(quiz))
+  showEditQuizModal.value = true
+}
+
+// Close edit quiz modal
+function closeEditQuizModal() {
+  showEditQuizModal.value = false
+  selectedQuiz.value = {}
+}
+
+// Save quiz changes
+function saveQuizChanges(updatedQuiz) {
+  // Find the index of the quiz we're editing
+  const index = quizzesList.value.findIndex(q => q.id === updatedQuiz.id)
+  
+  // Update the quiz if found
+  if (index !== -1) {
+    quizzesList.value[index] = updatedQuiz
+  }
+  
+  // Close the modal
+  closeEditQuizModal()
+}
+
+// View quiz results
+function viewResults(quiz) {
+  selectedQuiz.value = quiz
+  showResultsModal.value = true
+}
+
+// Close results modal
+function closeResultsModal() {
+  showResultsModal.value = false
+  selectedQuiz.value = {}
+}
+
+// Duplicate quiz
+function duplicateQuiz(quiz) {
+  // Create a deep copy of the quiz
+  const duplicatedQuiz = JSON.parse(JSON.stringify(quiz))
+  
+  // Update the ID, title and reset submission stats
+  const newId = quizzesList.value.length > 0 
+    ? Math.max(...quizzesList.value.map(q => q.id)) + 1 
+    : 1
+  
+  duplicatedQuiz.id = newId
+  duplicatedQuiz.title = `Copy of ${duplicatedQuiz.title}`
+  duplicatedQuiz.submissions = 0
+  duplicatedQuiz.averageScore = 0
+  
+  // Add the duplicated quiz to the list
+  quizzesList.value.unshift(duplicatedQuiz)
+}
+
+// Generate quiz from wizard data
+function generateQuiz(quizData) {
+  // Create a new quiz object based on form data
+  const newQuizId = quizzesList.value.length > 0 
+    ? Math.max(...quizzesList.value.map(q => q.id)) + 1 
+    : 1
+  
+  // Generate title based on user input or selected topics
+  let title = quizData.title.trim()
+  if (!title && quizData.selectedTopics.length > 0) {
+    title = `Quiz on ${quizData.selectedTopics.slice(0, 2).join(' & ')}${quizData.selectedTopics.length > 2 ? ' & more' : ''}`
+  } else if (!title) {
+    title = "New Quiz"
+  }
+  
+  // Add the new quiz to the list
+  quizzesList.value.unshift({
+    id: newQuizId,
+    title: title,
+    dueDate: `Due in 14 days`,
+    questions: quizData.questionCount,
+    timeLimit: quizData.timeLimit,
+    submissions: 0,
+    averageScore: 0,
+    questionTypes: quizData.questionTypeLabels
+  })
+  
+  // Close the creation modal
+  showCreateQuizModal.value = false
+}
+
+// Close all modals
+function closeAllModals() {
+  showCreateQuizModal.value = false
+  showEditQuizModal.value = false
+  showResultsModal.value = false
+  selectedQuiz.value = {}
 }
 </script>
 
@@ -121,94 +272,6 @@ function getQuizTitle(courseCode, quizNumber) {
   padding-bottom: 0;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 0;
-}
-
-.empty-state p {
-  margin-bottom: 20px;
-  color: #6b7280;
-}
-
-.quiz-list {
-  margin-top: 20px;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.list-item:last-child {
-  border-bottom: none;
-}
-
-.list-item-content {
-  flex: 2;
-}
-
-.list-item-content h4 {
-  margin-bottom: 5px;
-  color: #1f2937;
-  font-size: 16px;
-}
-
-.list-item-content p {
-  margin-bottom: 0;
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.list-item-stats {
-  display: flex;
-  gap: 20px;
-  flex: 1;
-  justify-content: center;
-}
-
-.item-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-value {
-  font-weight: 600;
-  color: #4C6EF5;
-  font-size: 16px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.list-item-actions {
-  display: flex;
-  gap: 10px;
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.action-btn {
-  background-color: #f3f4f6;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #4b5563;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.action-btn:hover {
-  background-color: #e5e7eb;
-}
-
 .primary-button {
   padding: 8px 16px;
   border-radius: 6px;
@@ -225,37 +288,17 @@ function getQuizTitle(courseCode, quizNumber) {
   background-color: #f96a3a;
 }
 
-@media (max-width: 768px) {
-  .list-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-  
-  .list-item-stats {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  
-  .list-item-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-}
-
-.empty-icon {
-  font-size: 48px;
-  color: #e5e7eb;
-  margin-bottom: 20px;
-}
-
-.list-item-content h4 i, 
-.list-item-content p i {
-  margin-right: 5px;
-  color: #6b7280;
-}
-
-.action-btn i {
-  margin-right: 4px;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
 }
 </style> 

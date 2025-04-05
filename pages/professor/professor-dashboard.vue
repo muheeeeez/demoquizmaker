@@ -108,7 +108,7 @@
                 {{ activeCourse.title }}
               </h1>
             </div>
-            <button class="primary-button">
+            <button class="primary-button" @click="navigateToQuizzes">
               <i class="fas fa-plus"></i> New Quiz
             </button>
           </div>
@@ -602,6 +602,12 @@ const updateCourse = async (updatedCourseData) => {
     return false;
   }
 };
+
+// Navigate to quizzes tab and create new quiz
+const navigateToQuizzes = () => {
+  activeTab.value = 'quizzes';
+  handleTabChange('quizzes');
+}
 </script>
 
 <style scoped>
