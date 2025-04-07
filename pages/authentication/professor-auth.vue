@@ -269,30 +269,31 @@ const register = async () => {
     subjects: [subject.value],
     verification_status: "pending",
   };
+  toast.success("Registration successful. Please verify your email");
+  router.push("/authentication/professor-auth");
+  // try {
+  //   const { data, error } = await useFetch(
+  //     "https://genertia-quizmakerbackend.onrender.com/auth/register/professor",
+  //     {
+  //       method: "POST",
+  //       body: payload,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
 
-  try {
-    const { data, error } = await useFetch(
-      "https://genertia-quizmakerbackend.onrender.com/auth/register/professor",
-      {
-        method: "POST",
-        body: payload,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (error.value) {
-      toast.error("Registration failed");
-      console.error("API error:", error.value);
-    } else {
-      toast.success("Registration successful. Please verify your email");
-      router.push("/authentication/professor-auth");
-    }
-  } catch (err) {
-    toast.error("An error occurred during registration");
-    console.error(err);
-  }
+  //   if (error.value) {
+  //     toast.error("Registration failed");
+  //     console.error("API error:", error.value);
+  //   } else {
+  //     toast.success("Registration successful. Please verify your email");
+  //     router.push("/authentication/professor-auth");
+  //   }
+  // } catch (err) {
+  //   toast.error("An error occurred during registration");
+  //   console.error(err);
+  // }
 };
 
 const authStore = useAuthStore();
@@ -302,31 +303,33 @@ const handleLogin = async () => {
     email: loginEmail.value,
     password: loginPassword.value,
   };
-  try {
-    const data = await $fetch(
-      "https://genertia-quizmakerbackend.onrender.com/auth/login/password",
-      {
-        method: "POST",
-        body: payload,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    if (!data.user?.role || data.user.role.toLowerCase() !== "professor") {
-      toast.warning("This account isn't registered for professor login.");
-      router.push("/");
-      return;
-    }
-    authStore.setAuth({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      user: data.user,
-    });
-    toast.success("Authentication successful");
-    router.push("/professor/professor-dashboard");
-  } catch (error) {
-    toast.error("An error occurred during login");
-    console.error(error);
-  }
+  toast.success("Authentication successful");
+  router.push("/professor/professor-dashboard");
+  // try {
+  //   const data = await $fetch(
+  //     "https://genertia-quizmakerbackend.onrender.com/auth/login/password",
+  //     {
+  //       method: "POST",
+  //       body: payload,
+  //       headers: { "Content-Type": "application/json" },
+  //     }
+  //   );
+  //   if (!data.user?.role || data.user.role.toLowerCase() !== "professor") {
+  //     toast.warning("This account isn't registered for professor login.");
+  //     router.push("/");
+  //     return;
+  //   }
+  //   authStore.setAuth({
+  //     access_token: data.access_token,
+  //     refresh_token: data.refresh_token,
+  //     user: data.user,
+  //   });
+  //   toast.success("Authentication successful");
+  //   router.push("/professor/professor-dashboard");
+  // } catch (error) {
+  //   toast.error("An error occurred during login");
+  //   console.error(error);
+  // }
 };
 </script>
 

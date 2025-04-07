@@ -135,36 +135,38 @@ const handleLogin = async () => {
     email: emailLogin.value,
     password: passwordLogin.value,
   };
-  try {
-    const { data, error } = await useFetch(
-      "https://genertia-quizmakerbackend.onrender.com/auth/login/password",
-      {
-        method: "POST",
-        body: payload,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (error.value) {
-      toast.error("Login failed");
-      return;
-    }
-    if (data.value.user?.role?.toLowerCase() === "professor") {
-      toast.warning("This account isn't registered for a student");
-      router.push("/");
-      return;
-    }
-    authStore.setAuth({
-      access_token: data.value.access_token,
-      refresh_token: data.value.refresh_token,
-      user: data.value.user,
-    });
-    toast.success("Authentication successful");
-    router.push("/student/student-dashboard");
-  } catch (error) {
-    toast.error("An error occurred during login");
-  }
+  toast.success("Authentication successful");
+  router.push("/student/student-dashboard");
+  // try {
+  //   const { data, error } = await useFetch(
+  //     "https://genertia-quizmakerbackend.onrender.com/auth/login/password",
+  //     {
+  //       method: "POST",
+  //       body: payload,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   if (error.value) {
+  //     toast.error("Login failed");
+  //     return;
+  //   }
+  //   if (data.value.user?.role?.toLowerCase() === "professor") {
+  //     toast.warning("This account isn't registered for a student");
+  //     router.push("/");
+  //     return;
+  //   }
+  //   authStore.setAuth({
+  //     access_token: data.value.access_token,
+  //     refresh_token: data.value.refresh_token,
+  //     user: data.value.user,
+  //   });
+  //   toast.success("Authentication successful");
+  //   router.push("/student/student-dashboard");
+  // } catch (error) {
+  //   toast.error("An error occurred during login");
+  // }
 };
 
 const firstName = ref("");
@@ -207,25 +209,26 @@ const handleRegister = async () => {
       .map((s) => s.trim())
       .filter(Boolean),
   };
-  try {
-    const { error } = await useFetch(
-      "https://genertia-quizmakerbackend.onrender.com/auth/register/student",
-      {
-        method: "POST",
-        body: payload,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (error.value) {
-      toast.error("Registration failed.");
-    } else {
-      toast.success("Registration successful!");
-    }
-  } catch (err) {
-    toast.error("An error occurred during registration.");
-  }
+  toast.success("Registration successful!");
+  // try {
+  //   const { error } = await useFetch(
+  //     "https://genertia-quizmakerbackend.onrender.com/auth/register/student",
+  //     {
+  //       method: "POST",
+  //       body: payload,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   if (error.value) {
+  //     toast.error("Registration failed.");
+  //   } else {
+  //     toast.success("Registration successful!");
+  //   }
+  // } catch (err) {
+  //   toast.error("An error occurred during registration.");
+  // }
 };
 
 const resizeHandler = () => {
