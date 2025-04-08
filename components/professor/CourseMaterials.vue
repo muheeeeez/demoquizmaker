@@ -487,6 +487,51 @@
               </div>
             </div>
 
+            <h4>Quiz Availability</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input 
+                  type="date" 
+                  id="startDate"
+                  v-model="quizGenerate.startDate"
+                  :min="new Date().toISOString().split('T')[0]"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="startTime">Start Time</label>
+                <input 
+                  type="time" 
+                  id="startTime"
+                  v-model="quizGenerate.startTime"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input 
+                  type="date" 
+                  id="endDate"
+                  v-model="quizGenerate.endDate"
+                  :min="quizGenerate.startDate"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="endTime">End Time</label>
+                <input 
+                  type="time" 
+                  id="endTime"
+                  v-model="quizGenerate.endTime"
+                  required
+                />
+              </div>
+            </div>
+
             <div class="form-group">
               <label>Question Types</label>
               <div class="checkbox-group">
@@ -892,7 +937,11 @@ const quizGenerate = ref({
   timeLimit: 30,
   questionTypes: ['multipleChoice'],
   topics: [],
-  previewBeforeSave: false
+  previewBeforeSave: false,
+  startDate: '',
+  startTime: '',
+  endDate: '',
+  endTime: ''
 })
 
 // Initialize data when component is mounted
@@ -1191,6 +1240,12 @@ function generateQuiz(material) {
   selectedMaterial.value = material
   showGenerateQuizModal.value = true
   
+  // Set default dates and times
+  const now = new Date()
+  const startDate = new Date(now)
+  const endDate = new Date(now)
+  endDate.setDate(now.getDate() + 14) // 14 days from now
+  
   // Initialize the quiz form with material data
   quizGenerate.value = {
     title: `Quiz on ${material.title}`,
@@ -1199,7 +1254,11 @@ function generateQuiz(material) {
     timeLimit: 30,
     questionTypes: ['multipleChoice'],
     topics: material.topics || [],
-    previewBeforeSave: false
+    previewBeforeSave: false,
+    startDate: startDate.toISOString().split('T')[0],
+    startTime: '09:00',
+    endDate: endDate.toISOString().split('T')[0],
+    endTime: '23:59'
   }
 }
 
@@ -1290,17 +1349,130 @@ async function createQuizFromMaterial() {
     // For now, just simulate the process
     await new Promise(r => setTimeout(r, 1500))
     
-    alert(`Quiz "${quizGenerate.value.title}" has been generated successfully!`)
+    // Generate mock questions
+    const questions = [];
+    const questionTypes = quizGenerate.value.questionTypes.map(type => {
+      const typeMap = {
+        'multipleChoice': 'Multiple Choice',
+        'trueFalse': 'True/False',
+        'shortAnswer': 'Short Answer',
+        'matching': 'Matching'
+      };
+      return typeMap[type] || type;
+    });
+    
+    // Generate questions based on the selected material and topics
+    for (let i = 0; i < quizGenerate.value.questionCount; i++) {
+      // Determine question type (rotate through the selected types)
+      const questionType = quizGenerate.value.questionTypes[i % quizGenerate.value.questionTypes.length];
+      
+      // Get topics from selected material or use the specified topics
+      const materialTopics = selectedMaterial.value.topics || ['General Topic'];
+      const topicToUse = quizGenerate.value.topics.length > 0 
+        ? quizGenerate.value.topics[i % quizGenerate.value.topics.length]
+        : materialTopics[i % materialTopics.length];
+      
+      // Create question base
+      let question = {
+        id: i + 1,
+        text: `Question ${i + 1}: What is the key concept about ${topicToUse} in ${selectedMaterial.value.title}?`,
+        type: questionType,
+        points: 5
+      };
+      
+      // Add type-specific fields
+      if (questionType === 'multipleChoice') {
+        question.options = [
+          `The main concept of ${topicToUse}`,
+          `A related aspect of ${topicToUse}`,
+          `An unrelated concept`,
+          `None of the above`
+        ];
+        question.correctAnswer = 0;
+      } else if (questionType === 'trueFalse') {
+        question.text = `Question ${i + 1}: The document "${selectedMaterial.value.title}" covers the topic of ${topicToUse} in detail.`;
+        question.correctAnswer = true;
+      } else if (questionType === 'shortAnswer') {
+        question.expectedAnswer = `The key concept of ${topicToUse} as described in the material...`;
+        question.wordLimit = 100;
+      } else if (questionType === 'matching') {
+        question.leftItems = [
+          `${topicToUse} concept 1`,
+          `${topicToUse} concept 2`,
+          `${topicToUse} concept 3`,
+          `${topicToUse} concept 4`
+        ];
+        question.rightItems = [
+          `Definition of concept 1`,
+          `Definition of concept 2`,
+          `Definition of concept 3`,
+          `Definition of concept 4`
+        ];
+        question.correctMatches = [0, 1, 2, 3];
+      }
+      
+      questions.push(question);
+    }
+    
+    // Format dates for display
+    const dateTimeDisplay = formatDateTimeDisplay(
+      quizGenerate.value.startDate, 
+      quizGenerate.value.startTime, 
+      quizGenerate.value.endDate, 
+      quizGenerate.value.endTime
+    )
+    
+    // Create a new quiz object
+    const newQuiz = {
+      id: Date.now(),
+      title: quizGenerate.value.title,
+      dueDate: dateTimeDisplay,
+      startDate: quizGenerate.value.startDate,
+      startTime: quizGenerate.value.startTime,
+      endDate: quizGenerate.value.endDate,
+      endTime: quizGenerate.value.endTime,
+      questions: quizGenerate.value.questionCount,
+      timeLimit: quizGenerate.value.timeLimit,
+      submissions: 0,
+      averageScore: 0,
+      questionTypes: questionTypes,
+      questionsList: questions,
+      materialSource: selectedMaterial.value.title
+    }
+    
+    // Close the generation modal and pass data to parent
     closeGenerateQuizModal()
+    
+    // Emit event to show generated quiz modal in the quizzes tab
+    emit('quizGenerated', newQuiz)
     
     // Navigate to the Quizzes tab
     emit('changeTab', 'quizzes')
   } catch (error) {
     console.error('Error generating quiz:', error)
-    alert('Failed to generate quiz: ' + (error.message || 'Unknown error'))
+    alert('Failed to generate quiz. Please try again.')
   } finally {
     isGeneratingQuiz.value = false
   }
+}
+
+// Format dates for display
+function formatDateTimeDisplay(startDate, startTime, endDate, endTime) {
+  // If same day
+  if (startDate === endDate) {
+    return `Available on ${formatDate(startDate)} from ${formatTime(startTime)} to ${formatTime(endTime)}`
+  }
+  
+  // Different days
+  return `Available from ${formatDate(startDate)} ${formatTime(startTime)} to ${formatDate(endDate)} ${formatTime(endTime)}`
+}
+
+function formatTime(timeString) {
+  const [hours, minutes] = timeString.split(':')
+  const hour = parseInt(hours)
+  const meridiem = hour >= 12 ? 'PM' : 'AM'
+  const hour12 = hour % 12 || 12
+  return `${hour12}:${minutes} ${meridiem}`
 }
 
 // Modal controls
@@ -1389,7 +1561,7 @@ function closePreviewModal() {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
   border: none;
   font-size: 14px;
@@ -1399,11 +1571,11 @@ function closePreviewModal() {
 }
 
 .primary-button:hover {
-  background-color: #3b5bdb;
+  background-color: #e56a3e;
 }
 
 .primary-button:disabled {
-  background-color: #a5b4fc;
+  background-color: #ffbca2;
   cursor: not-allowed;
 }
 
@@ -1433,11 +1605,11 @@ function closePreviewModal() {
 }
 
 .action-btn {
-  background-color: #f3f4f6;
+  background-color: transparent;
   border: none;
   border-radius: 4px;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1447,7 +1619,8 @@ function closePreviewModal() {
 }
 
 .action-btn:hover {
-  background-color: #e5e7eb;
+  background-color: #f3f4f6;
+  color: #ff784b;
 }
 
 /* Search and filters */
@@ -1476,12 +1649,12 @@ function closePreviewModal() {
 }
 
 .search-bar input:focus {
-  border-color: #4C6EF5;
-  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.1);
+  border-color: #ff784b;
+  box-shadow: 0 0 0 3px rgba(255, 120, 75, 0.1);
 }
 
 .search-btn {
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
   border: none;
   border-radius: 0 6px 6px 0;
@@ -1505,8 +1678,8 @@ function closePreviewModal() {
 }
 
 .filter-options select:focus {
-  border-color: #4C6EF5;
-  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.1);
+  border-color: #ff784b;
+  box-shadow: 0 0 0 3px rgba(255, 120, 75, 0.1);
 }
 
 /* Material categories */
@@ -1530,7 +1703,7 @@ function closePreviewModal() {
 }
 
 .category-header h4 i {
-  color: #4C6EF5;
+  color: #ff784b;
 }
 
 .category-count {
@@ -1542,24 +1715,27 @@ function closePreviewModal() {
 /* Material items */
 .material-items {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .material-item {
   display: flex;
-  background-color: #f9fafb;
+  flex-direction: column;
+  background-color: white;
   border-radius: 8px;
-  padding: 15px;
+  padding: 0;
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
   border: 1px solid #f3f4f6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  overflow: hidden;
+  height: 220px;
 }
 
 .material-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background-color: white;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
 .material-item.ai-generated::after {
@@ -1567,43 +1743,61 @@ function closePreviewModal() {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   color: white;
   font-size: 10px;
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 4px;
+  z-index: 1;
 }
 
 .material-icon {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #e5e7eb;
-  border-radius: 8px;
-  margin-right: 15px;
+  background-color: #f8f9fa;
+  margin-right: 0;
   flex-shrink: 0;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.material-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background-color: #f3f4f6;
+  border-radius: 0 0 0 8px;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
 }
 
 .material-icon i {
-  font-size: 20px;
-  color: #4b5563;
+  font-size: 40px;
+  color: #ff784b;
 }
 
 .material-info {
   flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
 .material-title {
-  font-size: 16px;
+  font-size: 14px;
   color: #111827;
   margin: 0 0 8px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 .material-meta {
@@ -1611,7 +1805,7 @@ function closePreviewModal() {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
 }
 
@@ -1625,21 +1819,24 @@ function closePreviewModal() {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  margin-top: auto;
 }
 
 .topic-badge {
-  background-color: #eef2ff;
-  color: #4C6EF5;
-  font-size: 12px;
+  background-color: #fff4f0;
+  color: #ff784b;
+  font-size: 11px;
   padding: 2px 8px;
   border-radius: 12px;
+  white-space: nowrap;
 }
 
 .material-actions {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-left: 10px;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f9fafb;
+  border-top: 1px solid #f3f4f6;
 }
 
 /* Dropdown menu */
@@ -1714,7 +1911,7 @@ function closePreviewModal() {
   width: 40px;
   height: 40px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #4C6EF5;
+  border-top: 4px solid #ff784b;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;
@@ -1793,7 +1990,7 @@ function closePreviewModal() {
 }
 
 .modal-header h3 i {
-  color: #4C6EF5;
+  color: #ff784b;
 }
 
 .close-btn {
@@ -1854,9 +2051,9 @@ function closePreviewModal() {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #4C6EF5;
+  border-color: #ff784b;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 120, 75, 0.1);
 }
 
 .file-upload-container {
@@ -1885,13 +2082,13 @@ function closePreviewModal() {
 }
 
 .file-upload-box:hover {
-  border-color: #4C6EF5;
+  border-color: #ff784b;
 }
 
 .file-upload-box i {
   font-size: 24px;
   margin-bottom: 10px;
-  color: #4C6EF5;
+  color: #ff784b;
 }
 
 .file-name {
@@ -2156,7 +2353,7 @@ function closePreviewModal() {
   top: 0;
   width: 30%;
   height: 100%;
-  background-color: #4C6EF5;
+  background-color: #ff784b;
   border-radius: 2px;
 }
 

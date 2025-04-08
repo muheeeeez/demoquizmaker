@@ -89,6 +89,55 @@
           Total: {{ totalPercentage }}% 
           <span v-if="totalPercentage !== 100">(Must equal 100%)</span>
         </div>
+
+        <div class="form-group">
+          <h4>Quiz Availability</h4>
+          <div class="form-row">
+            <div class="form-column">
+              <label for="quizStartDate">Start Date:</label>
+              <input
+                type="date"
+                id="quizStartDate"
+                v-model="quizData.startDate"
+                :min="new Date().toISOString().split('T')[0]"
+                required
+              />
+            </div>
+            <div class="form-column">
+              <label for="quizStartTime">Start Time:</label>
+              <input
+                type="time"
+                id="quizStartTime"
+                v-model="quizData.startTime"
+                required
+              />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-column">
+              <label for="quizEndDate">End Date:</label>
+              <input
+                type="date"
+                id="quizEndDate"
+                v-model="quizData.endDate"
+                :min="quizData.startDate"
+                required
+              />
+            </div>
+            <div class="form-column">
+              <label for="quizEndTime">End Time:</label>
+              <input
+                type="time"
+                id="quizEndTime"
+                v-model="quizData.endTime"
+                required
+              />
+            </div>
+          </div>
+          
+          <span class="help-text">Define when students can access and submit this quiz</span>
+        </div>
       </div>
 
       <!-- Step 2: Assessment Purpose Selection -->
@@ -437,7 +486,11 @@ const quizData = ref({
   learningObjective: '',
   selectedMaterials: [],
   selectedTopics: [],
-  contentWeighting: 50
+  contentWeighting: 50,
+  startDate: new Date().toISOString().split('T')[0],
+  startTime: '09:00',
+  endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  endTime: '23:59'
 })
 
 // Watch for assessment type changes to update defaults

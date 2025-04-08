@@ -17,7 +17,7 @@
     </div>
 
     <!-- Modal Overlay -->
-    <div v-if="showCreateQuizModal || showEditQuizModal || showResultsModal" class="modal-overlay" @click.self="closeAllModals">
+    <div v-if="showCreateQuizModal || showEditQuizModal || showResultsModal || showGeneratedQuizModal" class="modal-overlay" @click.self="closeAllModals">
       <!-- Create Quiz Modal -->
       <quiz-creation-wizard 
         v-if="showCreateQuizModal"
@@ -41,22 +41,39 @@
         :quiz="selectedQuiz"
         @close="closeResultsModal"
       />
+      
+      <!-- Generated Quiz Modal -->
+      <generated-quiz-modal
+        v-if="showGeneratedQuizModal"
+        :quiz="selectedQuiz"
+        @close="closeGeneratedQuizModal"
+        @edit-quiz="editGeneratedQuiz"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useMaterialsStore } from '../../stores/materialsStore'
-import QuizList from './QuizList.vue'
-import QuizCreationWizard from './QuizCreationWizard.vue'
-import QuizEditModal from './QuizEditModal.vue'
-import QuizResultsModal from './QuizResultsModal.vue'
+import { useMaterialsStore } from '../../stores/professor/materialsStore'
+import QuizList from './quiz/QuizList.vue'
+import QuizCreationWizard from './quiz/QuizCreationWizard.vue'
+import QuizEditModal from './quiz/QuizEditModal.vue'
+import QuizResultsModal from './quiz/QuizResultsModal.vue'
+import GeneratedQuizModal from './quiz/GeneratedQuizModal.vue'
 
 const props = defineProps({
   course: {
     type: Object,
     required: true
+  },
+  showGeneratedQuiz: {
+    type: Boolean,
+    default: false
+  },
+  generatedQuiz: {
+    type: Object,
+    default: null
   }
 })
 
@@ -67,6 +84,7 @@ const materialsStore = useMaterialsStore()
 const showCreateQuizModal = ref(false)
 const showEditQuizModal = ref(false)
 const showResultsModal = ref(false)
+const showGeneratedQuizModal = ref(false)
 const selectedQuiz = ref({})
 
 // List of quizzes (changing from computed to ref so we can update it)
@@ -92,6 +110,14 @@ watch(() => props.course?.id, async (newId) => {
     await loadCourseMaterials()
   }
 }, { immediate: false })
+
+// Watch for incoming generated quiz
+watch(() => props.showGeneratedQuiz, (newVal) => {
+  if (newVal && props.generatedQuiz) {
+    selectedQuiz.value = props.generatedQuiz
+    showGeneratedQuizModal.value = true
+  }
+}, { immediate: true })
 
 // Generate initial quizzes based on course
 function generateInitialQuizzes() {
@@ -221,20 +247,130 @@ function generateQuiz(quizData) {
     title = "New Quiz"
   }
   
-  // Add the new quiz to the list
-  quizzesList.value.unshift({
+  // Format the dates for display
+  const dateTimeDisplay = formatDateTimeDisplay(quizData.startDate, quizData.startTime, quizData.endDate, quizData.endTime)
+  
+  // Create the new quiz object
+  const newQuiz = {
     id: newQuizId,
     title: title,
-    dueDate: `Due in 14 days`,
+    dueDate: dateTimeDisplay, // Display text for the due date range
+    startDate: quizData.startDate,
+    startTime: quizData.startTime,
+    endDate: quizData.endDate,
+    endTime: quizData.endTime,
     questions: quizData.questionCount,
     timeLimit: quizData.timeLimit,
     submissions: 0,
     averageScore: 0,
-    questionTypes: quizData.questionTypeLabels
-  })
+    questionTypes: quizData.questionTypeLabels,
+    // Generate mock questions for editing
+    questionsList: generateMockQuestions(quizData.questionCount, quizData.questionTypes, quizData.selectedTopics)
+  }
+  
+  // Add the new quiz to the list
+  quizzesList.value.unshift(newQuiz)
   
   // Close the creation modal
   showCreateQuizModal.value = false
+  
+  // Show the generated quiz modal
+  selectedQuiz.value = newQuiz
+  showGeneratedQuizModal.value = true
+}
+
+// Format date and time for display
+function formatDateTimeDisplay(startDate, startTime, endDate, endTime) {
+  // Format start date
+  const start = new Date(`${startDate}T${startTime}`)
+  const end = new Date(`${endDate}T${endTime}`)
+  
+  // If same day
+  if (startDate === endDate) {
+    return `Available on ${formatDate(startDate)} from ${formatTime(startTime)} to ${formatTime(endTime)}`
+  }
+  
+  // Different days
+  return `Available from ${formatDate(startDate)} ${formatTime(startTime)} to ${formatDate(endDate)} ${formatTime(endTime)}`
+}
+
+// Helper to format date
+function formatDate(dateString) {
+  const options = { month: 'short', day: 'numeric', year: 'numeric' }
+  return new Date(dateString).toLocaleDateString('en-US', options)
+}
+
+// Helper to format time
+function formatTime(timeString) {
+  const [hours, minutes] = timeString.split(':')
+  const hour = parseInt(hours)
+  const meridiem = hour >= 12 ? 'PM' : 'AM'
+  const hour12 = hour % 12 || 12
+  return `${hour12}:${minutes} ${meridiem}`
+}
+
+// Generate mock questions for a new quiz
+function generateMockQuestions(count, types, topics) {
+  const questions = []
+  
+  // Default question types if none provided
+  const questionTypes = types || ['multipleChoice', 'trueFalse']
+  
+  // Sample topics if none provided
+  const questionTopics = topics && topics.length > 0 
+    ? topics 
+    : ['Topic 1', 'Topic 2', 'Topic 3']
+  
+  for (let i = 0; i < count; i++) {
+    // Alternate between question types
+    const type = Array.isArray(questionTypes)
+      ? questionTypes[i % questionTypes.length]
+      : 'multipleChoice'
+    
+    // Rotate through topics
+    const topic = questionTopics[i % questionTopics.length]
+    
+    let question = {
+      id: i + 1,
+      text: `Question ${i + 1}: What is the primary concept of ${topic}?`,
+      type: type,
+      points: 5
+    }
+    
+    // Add type-specific fields
+    if (type === 'multipleChoice' || type === 'Multiple Choice') {
+      question.options = [
+        `The main principle of ${topic}`,
+        `A secondary aspect of ${topic}`,
+        `An unrelated concept`,
+        `None of the above`
+      ]
+      question.correctAnswer = 0
+    } else if (type === 'trueFalse' || type === 'True/False') {
+      question.text = `Question ${i + 1}: The main principle of ${topic} is related to its implementation.`
+      question.correctAnswer = true
+    } else if (type === 'shortAnswer' || type === 'Short Answer') {
+      question.expectedAnswer = `The main concept of ${topic} involves...`
+      question.wordLimit = 100
+    }
+    
+    questions.push(question)
+  }
+  
+  return questions
+}
+
+// Close generated quiz modal
+function closeGeneratedQuizModal() {
+  showGeneratedQuizModal.value = false
+  selectedQuiz.value = {}
+  emit('clear-generated-quiz')
+}
+
+// Edit generated quiz
+function editGeneratedQuiz(quiz) {
+  showGeneratedQuizModal.value = false
+  editQuiz(quiz)
 }
 
 // Close all modals
@@ -242,8 +378,18 @@ function closeAllModals() {
   showCreateQuizModal.value = false
   showEditQuizModal.value = false
   showResultsModal.value = false
+  
+  // Clear generated quiz state if needed
+  if (showGeneratedQuizModal.value) {
+    showGeneratedQuizModal.value = false
+    emit('clear-generated-quiz')
+  }
+  
   selectedQuiz.value = {}
 }
+
+// Emit for clearing generated quiz state
+const emit = defineEmits(['clear-generated-quiz'])
 </script>
 
 <style scoped>

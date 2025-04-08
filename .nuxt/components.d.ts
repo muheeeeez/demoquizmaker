@@ -24,10 +24,6 @@ interface _GlobalComponents {
     'ProfessorCourseQuizzes': typeof import("../components/professor/CourseQuizzes.vue")['default']
     'ProfessorCourseSettings': typeof import("../components/professor/CourseSettings.vue")['default']
     'ProfessorCourseStudents': typeof import("../components/professor/CourseStudents.vue")['default']
-    'ProfessorQuizCreationWizard': typeof import("../components/professor/QuizCreationWizard.vue")['default']
-    'ProfessorQuizEditModal': typeof import("../components/professor/QuizEditModal.vue")['default']
-    'ProfessorQuizList': typeof import("../components/professor/QuizList.vue")['default']
-    'ProfessorQuizResultsModal': typeof import("../components/professor/QuizResultsModal.vue")['default']
     'ProfessorAiassistantAIAssistantChat': typeof import("../components/professor/aiassistant/AIAssistantChat.vue")['default']
     'ProfessorAiassistantAIFeedbackPanel': typeof import("../components/professor/aiassistant/AIFeedbackPanel.vue")['default']
     'ProfessorAiassistantCourseAIAssistant': typeof import("../components/professor/aiassistant/CourseAIAssistant.vue")['default']
@@ -40,16 +36,19 @@ interface _GlobalComponents {
     'ProfessorMaterialsMaterialEditModal': typeof import("../components/professor/materials/MaterialEditModal.vue")['default']
     'ProfessorMaterialsMaterialList': typeof import("../components/professor/materials/MaterialList.vue")['default']
     'ProfessorMaterialsMaterialUploader': typeof import("../components/professor/materials/MaterialUploader.vue")['default']
+    'ProfessorQuizGeneratedQuizModal': typeof import("../components/professor/quiz/GeneratedQuizModal.vue")['default']
+    'ProfessorQuizCreationWizard': typeof import("../components/professor/quiz/QuizCreationWizard.vue")['default']
+    'ProfessorQuizEditModal': typeof import("../components/professor/quiz/QuizEditModal.vue")['default']
+    'ProfessorQuizList': typeof import("../components/professor/quiz/QuizList.vue")['default']
+    'ProfessorQuizResultsModal': typeof import("../components/professor/quiz/QuizResultsModal.vue")['default']
     'ProfessorStudentsCourseStudents': typeof import("../components/professor/students/CourseStudents.vue")['default']
     'ProfessorStudentsStudentList': typeof import("../components/professor/students/StudentList.vue")['default']
     'ProfessorStudentsStudentMessageModal': typeof import("../components/professor/students/StudentMessageModal.vue")['default']
     'ProfessorStudentsStudentProfileModal': typeof import("../components/professor/students/StudentProfileModal.vue")['default']
-    'StudentCourseMaterial': typeof import("../components/student/CourseMaterial.vue")['default']
     'StudentCourseMaterials': typeof import("../components/student/CourseMaterials.vue")['default']
     'StudentCourseOverview': typeof import("../components/student/CourseOverview.vue")['default']
     'StudentCourseQuizzes': typeof import("../components/student/CourseQuizzes.vue")['default']
     'StudentCourseStudyNotes': typeof import("../components/student/CourseStudyNotes.vue")['default']
-    'StudentQuizDetails': typeof import("../components/student/QuizDetails.vue")['default']
     'StudentQuizTaking': typeof import("../components/student/QuizTaking.vue")['default']
     'NuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
     'NuxtLayout': typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
@@ -86,10 +85,6 @@ interface _GlobalComponents {
     'LazyProfessorCourseQuizzes': LazyComponent<typeof import("../components/professor/CourseQuizzes.vue")['default']>
     'LazyProfessorCourseSettings': LazyComponent<typeof import("../components/professor/CourseSettings.vue")['default']>
     'LazyProfessorCourseStudents': LazyComponent<typeof import("../components/professor/CourseStudents.vue")['default']>
-    'LazyProfessorQuizCreationWizard': LazyComponent<typeof import("../components/professor/QuizCreationWizard.vue")['default']>
-    'LazyProfessorQuizEditModal': LazyComponent<typeof import("../components/professor/QuizEditModal.vue")['default']>
-    'LazyProfessorQuizList': LazyComponent<typeof import("../components/professor/QuizList.vue")['default']>
-    'LazyProfessorQuizResultsModal': LazyComponent<typeof import("../components/professor/QuizResultsModal.vue")['default']>
     'LazyProfessorAiassistantAIAssistantChat': LazyComponent<typeof import("../components/professor/aiassistant/AIAssistantChat.vue")['default']>
     'LazyProfessorAiassistantAIFeedbackPanel': LazyComponent<typeof import("../components/professor/aiassistant/AIFeedbackPanel.vue")['default']>
     'LazyProfessorAiassistantCourseAIAssistant': LazyComponent<typeof import("../components/professor/aiassistant/CourseAIAssistant.vue")['default']>
@@ -102,16 +97,19 @@ interface _GlobalComponents {
     'LazyProfessorMaterialsMaterialEditModal': LazyComponent<typeof import("../components/professor/materials/MaterialEditModal.vue")['default']>
     'LazyProfessorMaterialsMaterialList': LazyComponent<typeof import("../components/professor/materials/MaterialList.vue")['default']>
     'LazyProfessorMaterialsMaterialUploader': LazyComponent<typeof import("../components/professor/materials/MaterialUploader.vue")['default']>
+    'LazyProfessorQuizGeneratedQuizModal': LazyComponent<typeof import("../components/professor/quiz/GeneratedQuizModal.vue")['default']>
+    'LazyProfessorQuizCreationWizard': LazyComponent<typeof import("../components/professor/quiz/QuizCreationWizard.vue")['default']>
+    'LazyProfessorQuizEditModal': LazyComponent<typeof import("../components/professor/quiz/QuizEditModal.vue")['default']>
+    'LazyProfessorQuizList': LazyComponent<typeof import("../components/professor/quiz/QuizList.vue")['default']>
+    'LazyProfessorQuizResultsModal': LazyComponent<typeof import("../components/professor/quiz/QuizResultsModal.vue")['default']>
     'LazyProfessorStudentsCourseStudents': LazyComponent<typeof import("../components/professor/students/CourseStudents.vue")['default']>
     'LazyProfessorStudentsStudentList': LazyComponent<typeof import("../components/professor/students/StudentList.vue")['default']>
     'LazyProfessorStudentsStudentMessageModal': LazyComponent<typeof import("../components/professor/students/StudentMessageModal.vue")['default']>
     'LazyProfessorStudentsStudentProfileModal': LazyComponent<typeof import("../components/professor/students/StudentProfileModal.vue")['default']>
-    'LazyStudentCourseMaterial': LazyComponent<typeof import("../components/student/CourseMaterial.vue")['default']>
     'LazyStudentCourseMaterials': LazyComponent<typeof import("../components/student/CourseMaterials.vue")['default']>
     'LazyStudentCourseOverview': LazyComponent<typeof import("../components/student/CourseOverview.vue")['default']>
     'LazyStudentCourseQuizzes': LazyComponent<typeof import("../components/student/CourseQuizzes.vue")['default']>
     'LazyStudentCourseStudyNotes': LazyComponent<typeof import("../components/student/CourseStudyNotes.vue")['default']>
-    'LazyStudentQuizDetails': LazyComponent<typeof import("../components/student/QuizDetails.vue")['default']>
     'LazyStudentQuizTaking': LazyComponent<typeof import("../components/student/QuizTaking.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
     'LazyNuxtLayout': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
@@ -154,10 +152,6 @@ export const ProfessorCourseOverview: typeof import("../components/professor/Cou
 export const ProfessorCourseQuizzes: typeof import("../components/professor/CourseQuizzes.vue")['default']
 export const ProfessorCourseSettings: typeof import("../components/professor/CourseSettings.vue")['default']
 export const ProfessorCourseStudents: typeof import("../components/professor/CourseStudents.vue")['default']
-export const ProfessorQuizCreationWizard: typeof import("../components/professor/QuizCreationWizard.vue")['default']
-export const ProfessorQuizEditModal: typeof import("../components/professor/QuizEditModal.vue")['default']
-export const ProfessorQuizList: typeof import("../components/professor/QuizList.vue")['default']
-export const ProfessorQuizResultsModal: typeof import("../components/professor/QuizResultsModal.vue")['default']
 export const ProfessorAiassistantAIAssistantChat: typeof import("../components/professor/aiassistant/AIAssistantChat.vue")['default']
 export const ProfessorAiassistantAIFeedbackPanel: typeof import("../components/professor/aiassistant/AIFeedbackPanel.vue")['default']
 export const ProfessorAiassistantCourseAIAssistant: typeof import("../components/professor/aiassistant/CourseAIAssistant.vue")['default']
@@ -170,16 +164,19 @@ export const ProfessorMaterialsMaterialDetailsModal: typeof import("../component
 export const ProfessorMaterialsMaterialEditModal: typeof import("../components/professor/materials/MaterialEditModal.vue")['default']
 export const ProfessorMaterialsMaterialList: typeof import("../components/professor/materials/MaterialList.vue")['default']
 export const ProfessorMaterialsMaterialUploader: typeof import("../components/professor/materials/MaterialUploader.vue")['default']
+export const ProfessorQuizGeneratedQuizModal: typeof import("../components/professor/quiz/GeneratedQuizModal.vue")['default']
+export const ProfessorQuizCreationWizard: typeof import("../components/professor/quiz/QuizCreationWizard.vue")['default']
+export const ProfessorQuizEditModal: typeof import("../components/professor/quiz/QuizEditModal.vue")['default']
+export const ProfessorQuizList: typeof import("../components/professor/quiz/QuizList.vue")['default']
+export const ProfessorQuizResultsModal: typeof import("../components/professor/quiz/QuizResultsModal.vue")['default']
 export const ProfessorStudentsCourseStudents: typeof import("../components/professor/students/CourseStudents.vue")['default']
 export const ProfessorStudentsStudentList: typeof import("../components/professor/students/StudentList.vue")['default']
 export const ProfessorStudentsStudentMessageModal: typeof import("../components/professor/students/StudentMessageModal.vue")['default']
 export const ProfessorStudentsStudentProfileModal: typeof import("../components/professor/students/StudentProfileModal.vue")['default']
-export const StudentCourseMaterial: typeof import("../components/student/CourseMaterial.vue")['default']
 export const StudentCourseMaterials: typeof import("../components/student/CourseMaterials.vue")['default']
 export const StudentCourseOverview: typeof import("../components/student/CourseOverview.vue")['default']
 export const StudentCourseQuizzes: typeof import("../components/student/CourseQuizzes.vue")['default']
 export const StudentCourseStudyNotes: typeof import("../components/student/CourseStudyNotes.vue")['default']
-export const StudentQuizDetails: typeof import("../components/student/QuizDetails.vue")['default']
 export const StudentQuizTaking: typeof import("../components/student/QuizTaking.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
@@ -216,10 +213,6 @@ export const LazyProfessorCourseOverview: LazyComponent<typeof import("../compon
 export const LazyProfessorCourseQuizzes: LazyComponent<typeof import("../components/professor/CourseQuizzes.vue")['default']>
 export const LazyProfessorCourseSettings: LazyComponent<typeof import("../components/professor/CourseSettings.vue")['default']>
 export const LazyProfessorCourseStudents: LazyComponent<typeof import("../components/professor/CourseStudents.vue")['default']>
-export const LazyProfessorQuizCreationWizard: LazyComponent<typeof import("../components/professor/QuizCreationWizard.vue")['default']>
-export const LazyProfessorQuizEditModal: LazyComponent<typeof import("../components/professor/QuizEditModal.vue")['default']>
-export const LazyProfessorQuizList: LazyComponent<typeof import("../components/professor/QuizList.vue")['default']>
-export const LazyProfessorQuizResultsModal: LazyComponent<typeof import("../components/professor/QuizResultsModal.vue")['default']>
 export const LazyProfessorAiassistantAIAssistantChat: LazyComponent<typeof import("../components/professor/aiassistant/AIAssistantChat.vue")['default']>
 export const LazyProfessorAiassistantAIFeedbackPanel: LazyComponent<typeof import("../components/professor/aiassistant/AIFeedbackPanel.vue")['default']>
 export const LazyProfessorAiassistantCourseAIAssistant: LazyComponent<typeof import("../components/professor/aiassistant/CourseAIAssistant.vue")['default']>
@@ -232,16 +225,19 @@ export const LazyProfessorMaterialsMaterialDetailsModal: LazyComponent<typeof im
 export const LazyProfessorMaterialsMaterialEditModal: LazyComponent<typeof import("../components/professor/materials/MaterialEditModal.vue")['default']>
 export const LazyProfessorMaterialsMaterialList: LazyComponent<typeof import("../components/professor/materials/MaterialList.vue")['default']>
 export const LazyProfessorMaterialsMaterialUploader: LazyComponent<typeof import("../components/professor/materials/MaterialUploader.vue")['default']>
+export const LazyProfessorQuizGeneratedQuizModal: LazyComponent<typeof import("../components/professor/quiz/GeneratedQuizModal.vue")['default']>
+export const LazyProfessorQuizCreationWizard: LazyComponent<typeof import("../components/professor/quiz/QuizCreationWizard.vue")['default']>
+export const LazyProfessorQuizEditModal: LazyComponent<typeof import("../components/professor/quiz/QuizEditModal.vue")['default']>
+export const LazyProfessorQuizList: LazyComponent<typeof import("../components/professor/quiz/QuizList.vue")['default']>
+export const LazyProfessorQuizResultsModal: LazyComponent<typeof import("../components/professor/quiz/QuizResultsModal.vue")['default']>
 export const LazyProfessorStudentsCourseStudents: LazyComponent<typeof import("../components/professor/students/CourseStudents.vue")['default']>
 export const LazyProfessorStudentsStudentList: LazyComponent<typeof import("../components/professor/students/StudentList.vue")['default']>
 export const LazyProfessorStudentsStudentMessageModal: LazyComponent<typeof import("../components/professor/students/StudentMessageModal.vue")['default']>
 export const LazyProfessorStudentsStudentProfileModal: LazyComponent<typeof import("../components/professor/students/StudentProfileModal.vue")['default']>
-export const LazyStudentCourseMaterial: LazyComponent<typeof import("../components/student/CourseMaterial.vue")['default']>
 export const LazyStudentCourseMaterials: LazyComponent<typeof import("../components/student/CourseMaterials.vue")['default']>
 export const LazyStudentCourseOverview: LazyComponent<typeof import("../components/student/CourseOverview.vue")['default']>
 export const LazyStudentCourseQuizzes: LazyComponent<typeof import("../components/student/CourseQuizzes.vue")['default']>
 export const LazyStudentCourseStudyNotes: LazyComponent<typeof import("../components/student/CourseStudyNotes.vue")['default']>
-export const LazyStudentQuizDetails: LazyComponent<typeof import("../components/student/QuizDetails.vue")['default']>
 export const LazyStudentQuizTaking: LazyComponent<typeof import("../components/student/QuizTaking.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
 export const LazyNuxtLayout: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>

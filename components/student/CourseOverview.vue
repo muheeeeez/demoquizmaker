@@ -23,12 +23,12 @@
               <span>Professor Sarah Williams</span>
             </div>
             <div class="info-item">
-              <label>Students</label>
-              <span>{{ course.students || '45' }} Enrolled</span>
-            </div>
-            <div class="info-item">
               <label>Start Date</label>
               <span>{{ getFormattedDate() }}</span>
+            </div>
+            <div class="info-item">
+              <label>Credits</label>
+              <span>{{ course.credits || 3 }}</span>
             </div>
           </div>
         </div>
@@ -42,18 +42,19 @@
         <div class="card-content">
           <div class="progress-container">
             <div class="progress-circle">
-              <svg width="120" height="120" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12" />
+              <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="60" fill="none" stroke="#edf2f7" stroke-width="12" />
                 <circle 
-                  cx="60" 
-                  cy="60" 
-                  r="54" 
+                  cx="70" 
+                  cy="70" 
+                  r="60" 
                   fill="none" 
-                  stroke="#4361ee" 
+                  stroke="#ff784b" 
                   stroke-width="12"
-                  stroke-dasharray="339.2"
-                  :stroke-dashoffset="339.2 - (339.2 * progress / 100)"
-                  transform="rotate(-90, 60, 60)"
+                  stroke-dasharray="376.8"
+                  :stroke-dashoffset="376.8 - (376.8 * progress / 100)"
+                  transform="rotate(-90, 70, 70)"
+                  stroke-linecap="round"
                 />
               </svg>
               <div class="progress-text">
@@ -88,6 +89,7 @@
       </div>
       <div class="card-content">
         <div v-if="upcomingDeadlines.length === 0" class="empty-state">
+          <i class="fas fa-calendar-check"></i>
           <p>No upcoming deadlines for this course.</p>
         </div>
         <div v-else class="deadlines-list">
@@ -107,19 +109,13 @@
               </div>
             </div>
             <div class="deadline-action">
-              <button 
-                v-if="deadline.type === 'Quiz'" 
-                class="primary-button"
-                @click="$emit('take-quiz', deadline)"
-              >
-                Take Quiz
+              <button v-if="deadline.type === 'Quiz'" class="primary-button" @click="viewDeadline(deadline)">
+                <i class="fas fa-play-circle"></i>
+                <span>Start Quiz</span>
               </button>
-              <button 
-                v-else 
-                class="secondary-button"
-                @click="viewDeadline(deadline)"
-              >
-                View Details
+              <button v-else class="secondary-button" @click="viewDeadline(deadline)">
+                <i class="fas fa-eye"></i>
+                <span>View Details</span>
               </button>
             </div>
           </div>
@@ -157,14 +153,7 @@ const upcomingDeadlines = ref([
     time: '11:59 PM',
     type: 'Quiz'
   },
-  {
-    title: 'Programming Assignment 2',
-    description: 'Implement a simple calculator application',
-    month: 'Apr',
-    day: '22',
-    time: '11:59 PM',
-    type: 'Assignment'
-  },
+
   {
     title: 'Midterm Exam',
     description: 'Covers all topics from weeks 1-5',
@@ -192,73 +181,93 @@ const viewDeadline = (deadline) => {
 <style scoped>
 .course-overview {
   margin-bottom: 30px;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .overview-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .overview-header h2 {
   margin: 0;
-  color: #212529;
+  color: #111827;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.overview-header h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: #ff784b;
+  border-radius: 2px;
 }
 
 .overview-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .overview-card {
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .overview-card:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
 }
 
 .card-header {
-  background-color: #f8f9fa;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e9ecef;
+  background-color: #f9fafb;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .card-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #343a40;
+  color: #111827;
   display: flex;
   align-items: center;
+  font-weight: 600;
 }
 
 .card-header h3 i {
   margin-right: 10px;
-  color: #4361ee;
+  color: #ff784b;
 }
 
 .card-content {
-  padding: 20px;
+  padding: 24px;
 }
 
 /* Course Summary Card */
 .course-description {
   margin-top: 0;
-  margin-bottom: 20px;
-  color: #495057;
-  line-height: 1.5;
+  margin-bottom: 24px;
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 15px;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 20px;
 }
 
 .info-item {
@@ -267,27 +276,29 @@ const viewDeadline = (deadline) => {
 }
 
 .info-item label {
-  font-size: 12px;
-  color: #868e96;
-  margin-bottom: 5px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
 .info-item span {
-  font-weight: 500;
-  color: #343a40;
+  font-weight: 600;
+  color: #111827;
+  font-size: 15px;
 }
 
 /* Progress Card */
 .progress-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .progress-circle {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
 }
 
 .progress-text {
@@ -303,63 +314,95 @@ const viewDeadline = (deadline) => {
 }
 
 .progress-percentage {
-  font-size: 28px;
-  font-weight: bold;
-  color: #343a40;
+  font-size: 34px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
 }
 
 .progress-label {
-  font-size: 12px;
-  color: #868e96;
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
 .progress-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   text-align: center;
+  gap: 20px;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
+  background-color: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
 }
 
 .stat-value {
-  font-size: 20px;
-  font-weight: bold;
-  color: #343a40;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #868e96;
-  margin-top: 5px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 /* Deadlines Card */
 .deadlines-card {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .empty-state {
-  text-align: center;
-  padding: 20px;
-  color: #868e96;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #d1d5db;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
 }
 
 .deadlines-list {
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
 .deadline-item {
   display: flex;
-  padding: 15px 0;
-  border-bottom: 1px solid #e9ecef;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  border: 1px solid #f3f4f6;
 }
 
-.deadline-item:last-child {
-  border-bottom: none;
+.deadline-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border-color: rgba(255, 120, 75, 0.1);
 }
 
 .deadline-date {
@@ -367,26 +410,29 @@ const viewDeadline = (deadline) => {
 }
 
 .deadline-calendar {
-  width: 60px;
-  text-align: center;
-  border: 1px solid #e9ecef;
+  background-color: white;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 60px;
+  text-align: center;
 }
 
 .deadline-month {
-  background-color: #4361ee;
+  background-color: #ff784b;
   color: white;
-  font-size: 12px;
-  padding: 2px 0;
+  padding: 3px 0;
+  font-size: 13px;
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .deadline-day {
-  font-size: 24px;
-  font-weight: bold;
-  padding: 5px 0;
-  color: #343a40;
+  padding: 6px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
 }
 
 .deadline-info {
@@ -394,49 +440,56 @@ const viewDeadline = (deadline) => {
 }
 
 .deadline-info h4 {
-  margin: 0 0 5px;
-  color: #343a40;
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .deadline-info p {
-  margin: 0 0 10px;
-  color: #495057;
-  font-size: 14px;
+  margin: 0 0 12px;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .deadline-meta {
   display: flex;
-  font-size: 12px;
-  color: #868e96;
+  font-size: 14px;
+  color: #6b7280;
+  gap: 16px;
 }
 
 .deadline-time {
-  margin-right: 15px;
+  display: flex;
+  align-items: center;
 }
 
 .deadline-time i {
-  margin-right: 5px;
+  margin-right: 6px;
 }
 
 .deadline-type {
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 12px;
-  background-color: #f8f9fa;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
 }
 
 .deadline-type.Quiz {
-  background-color: #e7f5ff;
-  color: #4361ee;
+  background-color: #fff4f0;
+  color: #ff784b;
 }
 
 .deadline-type.Assignment {
-  background-color: #fff3bf;
-  color: #f08c00;
+  background-color: #f0f9ff;
+  color: #0284c7;
 }
 
 .deadline-type.Exam {
-  background-color: #ffe3e3;
-  color: #e03131;
+  background-color: #ffe4e6;
+  color: #e11d48;
 }
 
 .deadline-action {
@@ -446,59 +499,85 @@ const viewDeadline = (deadline) => {
 }
 
 .primary-button, .secondary-button {
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 18px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  gap: 8px;
 }
 
 .primary-button {
-  background-color: #4361ee;
+  background-color: #ff784b;
   color: white;
   border: none;
+  box-shadow: 0 2px 4px rgba(255, 120, 75, 0.2);
 }
 
 .primary-button:hover {
-  background-color: #3b4fd8;
+  background-color: #e5683b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 120, 75, 0.25);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(255, 120, 75, 0.2);
 }
 
 .secondary-button {
-  background-color: #f8f9fa;
-  color: #495057;
-  border: 1px solid #ced4da;
+  background-color: white;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
 }
 
 .secondary-button:hover {
-  background-color: #e9ecef;
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+}
+
+.secondary-button:active {
+  transform: translateY(0);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .overview-cards {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   
   .deadline-item {
     flex-direction: column;
+    gap: 16px;
   }
   
   .deadline-date {
     margin-right: 0;
-    margin-bottom: 10px;
   }
   
   .deadline-action {
     margin-left: 0;
-    margin-top: 15px;
+    width: 100%;
   }
   
   .deadline-action button {
     width: 100%;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .progress-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 </style> 

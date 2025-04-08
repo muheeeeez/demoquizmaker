@@ -139,10 +139,15 @@
             <CourseQuizzes
               v-else-if="activeTab === 'quizzes'"
               :course="activeCourse"
+              :show-generated-quiz="showGeneratedQuiz"
+              :generated-quiz="generatedQuizData"
+              @clear-generated-quiz="clearGeneratedQuiz"
             />
             <CourseMaterials
               v-else-if="activeTab === 'materials'"
               :course="activeCourse"
+              @change-tab="handleTabChange"
+              @quiz-generated="handleQuizGenerated"
             />
             <!-- Students Tab -->
             <CourseStudents
@@ -608,6 +613,19 @@ const navigateToQuizzes = () => {
   activeTab.value = 'quizzes';
   handleTabChange('quizzes');
 }
+
+// New quiz generation handling
+const showGeneratedQuiz = ref(false);
+const generatedQuizData = ref(null);
+const clearGeneratedQuiz = () => {
+  showGeneratedQuiz.value = false;
+  generatedQuizData.value = null;
+};
+
+const handleQuizGenerated = (quizData) => {
+  showGeneratedQuiz.value = true;
+  generatedQuizData.value = quizData;
+};
 </script>
 
 <style scoped>

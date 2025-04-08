@@ -95,7 +95,7 @@
           <div class="detail-card">
             <div class="card-header-with-action">
               <h3><i class="fas fa-exclamation-triangle"></i> Knowledge Gaps</h3>
-              <button @click="generateMaterials" class="secondary-button">Generate Materials</button>
+              <!-- <button @click="generateMaterials" class="secondary-button">Generate Materials</button> -->
             </div>
             
             <div class="knowledge-gaps">
