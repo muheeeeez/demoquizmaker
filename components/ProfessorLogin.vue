@@ -48,7 +48,7 @@
 import { ref } from "vue";
 import { useRouter } from "#app";
 import { toast } from "vue3-toastify";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "~/stores";
 
 const email = ref("");
 const password = ref("");

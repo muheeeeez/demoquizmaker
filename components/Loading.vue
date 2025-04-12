@@ -2,17 +2,17 @@
   <div v-if="loading" class="intro">
     <div class="loading-content">
       <h1 class="logo-header">
-        <span class="logo">Q</span>
-        <span class="logo">u</span>
-        <span class="logo">i</span>
-        <span class="logo">z</span>
-        <span class="logo">M</span>
-        <span class="logo">a</span>
-        <span class="logo">k</span>
+        <span class="logo">G</span>
+        <span class="logo">e</span>
+        <span class="logo">n</span>
         <span class="logo">e</span>
         <span class="logo">r</span>
-        <span class="logo">A</span>
-        <span class="logo">I</span>
+        <span class="logo">t</span>
+        <span class="logo">i</span>
+        <span class="logo">a</span>
+        <span class="logo">a</span>
+        <!-- <span class="logo">.</span> -->
+        <!-- <span class="logo">I</span> -->
       </h1>
       <div class="loader">
         <div class="loader-bar"></div>

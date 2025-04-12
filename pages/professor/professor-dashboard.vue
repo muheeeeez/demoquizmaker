@@ -3,7 +3,7 @@
     <!-- Side Panel -->
     <div class="side-panel">
       <div class="logo-container">
-        <h1>Genertiaa</h1>
+        <h1>QuizMakerAI</h1>
       </div>
       <nav class="side-nav">
         <div
@@ -554,7 +554,7 @@ const selectCourse = async (course) => {
 const logout = () => {
   isLoggingOut.value = true;
   setTimeout(() => {
-    router.push("/login");
+    router.push("/");
   }, 1000);
 };
 

@@ -49,7 +49,7 @@ import { ref, computed } from "vue";
 import { toast } from "vue3-toastify";
 import { useRouter } from "#app";
 import { useFetch } from "#app";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "~/stores";
 
 const router = useRouter();
 const $toast = toast;

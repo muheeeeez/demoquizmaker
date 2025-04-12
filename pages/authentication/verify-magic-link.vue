@@ -11,7 +11,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "~/stores";
 
 const router = useRouter();
 const route = useRoute();

@@ -113,7 +113,7 @@ defineEmits(['create-quiz', 'edit-quiz', 'view-results', 'duplicate-quiz'])
 
 .stat-value {
   font-weight: 600;
-  color: #4C6EF5;
+  color: #ff784b;
   font-size: 16px;
 }
 

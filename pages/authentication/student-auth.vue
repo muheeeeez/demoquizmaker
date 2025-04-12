@@ -103,7 +103,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { toast } from "vue3-toastify";
 import { useRouter, useFetch } from "#app";
 import { useRoute } from "vue-router";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "~/stores";
 
 const containerRef = ref(null);
 const toggleOverlay = () => {

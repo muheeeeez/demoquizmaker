@@ -290,9 +290,9 @@ import QuizTaking from '../../components/student/QuizTaking.vue';
 // User data
 const user = ref({
   id: 'student1',
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  initials: 'JD'
+  name: 'Abdul',
+  email: 'abdul@example.com',
+  initials: 'AB'
 });
 
 // Mock courses data

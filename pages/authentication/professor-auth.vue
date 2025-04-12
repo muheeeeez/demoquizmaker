@@ -115,7 +115,7 @@
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "~/stores";
 
 const firstName = ref("");
 const lastName = ref("");
